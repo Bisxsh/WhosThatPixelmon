@@ -1,0 +1,18 @@
+[
+  {
+    "modid": "whosthatpixelmon",
+    "name": "WhosThatPixelmon",
+    "description": "A simple pixelmon plugin that mimics the 'Whos that pokemon' intervals from the show",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": [
+      "Bisxsh"
+    ],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
