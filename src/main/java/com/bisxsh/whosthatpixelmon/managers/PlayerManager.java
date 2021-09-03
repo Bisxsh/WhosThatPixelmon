@@ -2,7 +2,7 @@ package com.bisxsh.whosthatpixelmon.managers;
 
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import com.bisxsh.whosthatpixelmon.listeners.SlotListener;
-import com.bisxsh.whosthatpixelmon.mapItem.ShowMap;
+import com.bisxsh.whosthatpixelmon.mapItem.MapHandler;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.living.player.Player;
@@ -21,7 +21,7 @@ import java.util.TimerTask;
 public class PlayerManager {
     private ItemStack hiddenMap, revealedMap;
     private ArrayList<Player> disabledPlayers;
-    private ShowMap showMap;
+    private MapHandler showMap;
     private ArrayList<Object[]> participatingPlayerInfo;
     private Whosthatpixelmon mainClass;
 
@@ -30,7 +30,7 @@ public class PlayerManager {
         this.revealedMap = revealedMap;
         disabledPlayers = new ArrayList<>();
         participatingPlayerInfo = new ArrayList<>();
-        showMap = new ShowMap();
+        showMap = new MapHandler();
         this.mainClass = mainClass;
 
     }

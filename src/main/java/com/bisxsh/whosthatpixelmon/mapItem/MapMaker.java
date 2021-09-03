@@ -5,8 +5,10 @@ import com.github.ericliucn.realmap.images.ImageSaveTask;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.data.manipulator.mutable.item.LoreData;
 import org.spongepowered.api.data.value.mutable.ListValue;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
@@ -34,6 +36,10 @@ public class MapMaker {
     public MapMaker(Whosthatpixelmon mainClaass) throws IOException, URISyntaxException {
         this.mainClass = mainClaass;
         this.generateMapsAndDetails();
+    }
+
+    public MapMaker() {
+
     }
 
     private void generateMapsAndDetails() throws IOException, URISyntaxException {
@@ -141,6 +147,17 @@ public class MapMaker {
         map.offer(lore);
         return map;
         //
+    }
+
+    public List<Text> getLore() {
+        final Text loreText = Text.of(TextColors.GOLD, TextStyles.ITALIC, "Who's That Pixelmon?");
+        final LoreData loreData = Sponge.getDataManager().getManipulatorBuilder(LoreData.class).get().create();
+        final ListValue<Text> lore = loreData.lore();
+        lore.add(0, loreText);
+        ItemStack item = ItemStack.builder()
+                .itemType(ItemTypes.FILLED_MAP).build();
+        item.offer(lore);
+        return item.get(Keys.ITEM_LORE).get();
     }
 
     public void deleteSprite() {

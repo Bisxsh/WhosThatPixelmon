@@ -1,6 +1,6 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
-import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
+import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
@@ -45,7 +45,7 @@ public class RewardManager {
                     .build();
             MessageChannel.fixed(winner).send(reward);
         } catch (Exception e) {
-            new WhosThatPixelmon().logMessage("[WhosThatPixelmon] Unable to create one of the reward ItemStacks");
+            new Whosthatpixelmon().getLogger().warn("[WhosThatPixelmon] Unable to create one of the reward ItemStacks");
         }
     }
 

@@ -12,9 +12,9 @@ import org.spongepowered.api.text.Text;
 
 import java.util.List;
 
-public class ShowMap {
+public class MapHandler {
 
-    public ShowMap () {
+    public MapHandler() {
     }
 
     public Inventory showHiddenMap(Player player, ItemStack hiddenMap) {
@@ -45,5 +45,11 @@ public class ShowMap {
             storedSlot.set(ItemStackSnapshot.NONE.createStack());
     }
 
+    public void checkAndRemoveMaps(Inventory slot) {
+        if (slot.peek().isPresent()) {
+            ItemStack item = slot.peek().get();
+
+        }
+    }
 
 }
