@@ -24,6 +24,7 @@ import org.spongepowered.api.text.Text;
 
 import java.io.*;
 import java.util.List;
+import java.util.Optional;
 
 @Mod(
         modid = Whosthatpixelmon.MOD_ID,
@@ -80,8 +81,11 @@ public class Whosthatpixelmon {
         for (Inventory slot : playerInv) {
             if (slot.peek().isPresent()) {
                 ItemStack item = slot.peek().get();
-                if (item.get(Keys.ITEM_LORE).get().equals(lore)) {
-                    mapHandler.removeMap(slot);
+                Optional<List<Text>> itemLore = item.get(Keys.ITEM_LORE);
+                if (itemLore.isPresent()) {
+                    if (itemLore.get().equals(lore)) {
+                        mapHandler.removeMap(slot);
+                    }
                 }
             }
         }
