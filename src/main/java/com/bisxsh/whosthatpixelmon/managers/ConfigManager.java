@@ -1,5 +1,6 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
+import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import ninja.leaping.configurate.ConfigurationNode;
 import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
@@ -44,10 +45,17 @@ public class ConfigManager {
         }
     }
 
-    public void loadTimeIntervals() throws IOException {
-        ConfigurationNode node = loadRootNode().getNode("time");
-        minTime = node.getNode("minimumTimeInterval").getInt();
-        maxTime = node.getNode("maximumTimeInterval").getInt();
+    public void loadTimeIntervals(Whosthatpixelmon mainClass) throws IOException {
+        try {
+            ConfigurationNode node = loadRootNode().getNode("time");
+            minTime = node.getNode("minimumTimeInterval").getInt();
+            maxTime = node.getNode("maximumTimeInterval").getInt();
+        } catch (Exception e) {
+            mainClass.getLogger().warn("[Whos that Pixelmon] Unable to read time intervals from config, the default values will be used.");
+            minTime = 30;
+            maxTime = 35;
+        }
+
     }
 
     private void initialSetup() throws IOException {

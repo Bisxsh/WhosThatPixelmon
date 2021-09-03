@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 public class TimeManager {
 
     private Whosthatpixelmon mainClass;
-    private ChatGameManager chatGameManager;
 
     public TimeManager(Whosthatpixelmon mainClass) {
         this.mainClass = mainClass;
@@ -19,7 +18,7 @@ public class TimeManager {
 
     private int getTimeInterval() throws IOException {
         ConfigManager configManager = new ConfigManager();
-        configManager.loadTimeIntervals();
+        configManager.loadTimeIntervals(mainClass);
         int minTime = configManager.getMinTime()*60;
         int maxTime = configManager.getMaxTime()*60;
 
@@ -39,7 +38,7 @@ public class TimeManager {
                 .name("WhosThatPixelmon - Setting up timer for ChatGame").execute(
                         task -> {
                             try {
-                                chatGameManager = new ChatGameManager(mainClass);
+                                ChatGameManager chatGameManager = new ChatGameManager(mainClass);
                                 chatGameManager.startChatGame();
                             } catch (IOException | URISyntaxException e) {
                                 e.printStackTrace();
