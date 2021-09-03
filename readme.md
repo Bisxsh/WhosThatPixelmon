@@ -1,5 +1,5 @@
 # Whos That Pixelmon
-A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show. 
+A ChatGame plugin for Pixelmon to mimic the 'Whos that Pixelmon' intervals from the show. 
 
 ![Plugin in action](https://media.giphy.com/media/pvBfl5cYHHoWXPGlIS/giphy.gif?cid=790b7611881fa0b3afbd9be7584f4928c128385627e40146&rid=giphy.gif&ct=g/giphy.gif)
 
@@ -7,7 +7,7 @@ A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from 
 Check out the project on [Ore](https://ore.spongepowered.org/Bisxsh/WhosThatPixelmon)  
   
 Drag the jar into your server's mods folder.  
-Make sure you have the dependencies [*RealMap*](https://ore.spongepowered.org/Eric12324/RealMap) and [*Pixelmon*](https://reforged.gg/) installed.
+Make sure you have the dependencies [*RealMap*](https://ore.spongepowered.org/Eric12324/RealMap) and [*Pixelmon Reforged*](https://reforged.gg/) installed.
 
 ### Features
 - Picks a random sprite from all available sprites. 
