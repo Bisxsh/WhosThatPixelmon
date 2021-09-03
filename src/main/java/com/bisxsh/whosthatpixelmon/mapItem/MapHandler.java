@@ -45,11 +45,4 @@ public class MapHandler {
             storedSlot.set(ItemStackSnapshot.NONE.createStack());
     }
 
-    public void checkAndRemoveMaps(Inventory slot) {
-        if (slot.peek().isPresent()) {
-            ItemStack item = slot.peek().get();
-
-        }
-    }
-
 }
