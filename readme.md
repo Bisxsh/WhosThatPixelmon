@@ -12,7 +12,13 @@ Make sure you have the dependencies [*RealMap*](https://ore.spongepowered.org/Er
 ### Features
 - Picks a random sprite from all available sprites. 
 - Configurable item rewards and time intervals. 
-- Prevents players from keeping maps created.
+- Prevents players from keeping maps created.  
+  
+### Commands  
+`/whosthatpixelmon, /wtp start`  
+Forces the chat game to start and resets the time interval for the next instance  
+#### Permissions  
+`whosthatpixelmon.command.start`  
   
 ### Config  
 **Default Config File:**  
