@@ -118,7 +118,7 @@ public class ChatGameManager {
     }
 
     public void endChatGame() throws IOException, InterruptedException {
-        playerManager.removeListeners();
+        Sponge.getEventManager().unregisterListeners(chatListener);
         mainClass.setTimeInterval();
         mapMaker.deleteSprite();
     }

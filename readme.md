@@ -16,7 +16,7 @@ Make sure you have the dependencies [*RealMap*](https://ore.spongepowered.org/Er
   
 ### Commands  
 `/whosthatpixelmon, /wtp start`  
-Forces the chat game to start and resets the time interval for the next instance  
+Forces the chat game to start and resets the time elapsed towards the next instance  
 #### Permissions  
 `whosthatpixelmon.command.start`  
   
@@ -56,5 +56,9 @@ The time node in the config file defines the time interval for the chat game to 
 **mimimumTimeInterval** and **maximumTimeInterval** is the earliest and latest that a new instance of the chat game will launch in minutes following an instance that has passed. If the server has started, these values will define the earliest and latest the first instance of the chat game will launch.  
 
 The time that the chat game launches will be randomised between these defined intervals. If you would like a static time between launches, simply put down the same value for both intervals, which will cause the game to launch at exactly the time specified.
+
+#### Contact me  
+Please report any bugs with the plugin on the [issue tracker](https://github.com/Bisxsh/WhosThatPixelmon/issues)  
+Any further queries can be raised by contacting me on [discord](https://discordapp.com/channels/@me/Bisxsh#0408/)  
   
 **Not for Commercial Use**

@@ -1,8 +1,14 @@
 package com.bisxsh.whosthatpixelmon.listeners;
 
 import com.bisxsh.whosthatpixelmon.managers.PlayerManager;
+import org.spongepowered.api.data.key.Keys;
+import org.spongepowered.api.data.type.HandTypes;
+import org.spongepowered.api.entity.Entity;
+import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
+import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.AffectSlotEvent;
 import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
 import org.spongepowered.api.event.item.inventory.DropItemEvent;
@@ -14,6 +20,7 @@ import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.channel.MessageChannel;
 import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.List;
 import java.util.Optional;
@@ -65,7 +72,22 @@ public class SlotListener {
             if (playerFromEvent.equals(player)) {
                 event.setCancelled(true);
                 MessageChannel playerChannel = MessageChannel.fixed(player);
-                playerChannel.send(Text.of(TextColors.RED, "You can not drop items while the chat game is active"));
+                Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
+                        .append(Text.builder("You can not drop items while the chat game is active")
+                                .color(TextColors.RED).style(TextStyles.RESET).build()).build();
+                playerChannel.send(Text.of(txt));
+            }
+        }
+    }
+    //
+
+    //Prevent item from being placed in an item frame
+    @Listener
+    public void onInteractEntity(InteractEntityEvent.Secondary.MainHand event) {
+        Entity entity = event.getTargetEntity();
+        if (entity.getType() == EntityTypes.ITEM_FRAME) {
+            if (!entity.get(Keys.REPRESENTED_ITEM).isPresent()) {
+                event.setCancelled(true);
             }
         }
     }

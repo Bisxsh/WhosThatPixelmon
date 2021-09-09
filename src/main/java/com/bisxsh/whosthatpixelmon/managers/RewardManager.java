@@ -30,9 +30,10 @@ public class RewardManager {
         String item = itemRewards.get(index);
         int amount = itemAmounts.get(index);
 
-        Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, item);
-        ItemStackSnapshot itemStackSnapshot = optionalItemType.get().getTemplate();
         try {
+            Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, item);
+            ItemStackSnapshot itemStackSnapshot = optionalItemType.get().getTemplate();
+
             ItemStack itemStack = itemStackSnapshot.createStack();
             itemStack.setQuantity(amount);
             winner.getInventory().offer(itemStack);

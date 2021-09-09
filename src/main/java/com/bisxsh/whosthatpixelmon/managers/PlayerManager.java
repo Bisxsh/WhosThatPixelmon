@@ -83,6 +83,7 @@ public class PlayerManager {
                 public void run() {
                     Sponge.getEventManager().unregisterListeners(listener);
                     showMap.removeMap(storedSlot);
+                    removeListeners();
                 }
             }, 5000);
         }
