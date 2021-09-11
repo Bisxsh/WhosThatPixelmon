@@ -1,0 +1,8 @@
+<component name="ArtifactManager">
+  <artifact type="jar" name="whosthatpixelmon:jar">
+    <output-path>$PROJECT_DIR$/../../Server/mods</output-path>
+    <root id="archive" name="whosthatpixelmon.jar">
+      <element id="module-output" name="whosthatpixelmon.main" />
+    </root>
+  </artifact>
+</component>

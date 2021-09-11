@@ -12,8 +12,8 @@ public class TimeManager {
 
     private Whosthatpixelmon mainClass;
 
-    public TimeManager(Whosthatpixelmon mainClass) {
-        this.mainClass = mainClass;
+    public TimeManager() {
+        this.mainClass = Whosthatpixelmon.getInstance();
     }
 
     private int getTimeInterval() throws IOException {
@@ -34,11 +34,11 @@ public class TimeManager {
     public void setChatGameTimer() throws IOException {
         int timeInterval = getTimeInterval();
 
-        Task startGameTask = Task.builder().delay(timeInterval, TimeUnit.SECONDS)
+        Task.builder().delay(timeInterval, TimeUnit.SECONDS)
                 .name("WhosThatPixelmon - Setting up timer for ChatGame").execute(
                         task -> {
                             try {
-                                ChatGameManager chatGameManager = new ChatGameManager(mainClass);
+                                ChatGameManager chatGameManager = new ChatGameManager();
                                 chatGameManager.startChatGame();
                             } catch (IOException | URISyntaxException e) {
                                 e.printStackTrace();

@@ -1,0 +1,21 @@
+[
+    {
+        "modid": "whosthatpixelmon",
+        "name": "whosthatpixelmon",
+        "version": "1.0.4",
+        "description": "A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show",
+        "authorList": [
+            "Bisxsh"
+        ],
+        "dependencies": [
+            "spongeapi@7.3.0",
+            "realmap",
+            "pixelmon"
+        ],
+        "requiredMods": [
+            "spongeapi@7.3.0",
+            "realmap",
+            "pixelmon"
+        ]
+    }
+]

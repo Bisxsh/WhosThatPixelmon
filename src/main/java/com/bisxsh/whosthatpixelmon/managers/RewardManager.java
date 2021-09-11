@@ -2,6 +2,7 @@ package com.bisxsh.whosthatpixelmon.managers;
 
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import org.spongepowered.api.Sponge;
+import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -25,8 +26,8 @@ public class RewardManager {
     public RewardManager() {
     }
 
-    public void giveReward(Player winner) throws IOException {
-        int index = pickRandomReward();
+    public void giveReward(Player winner, ConfigManager configManager) throws IOException {
+        int index = pickRandomReward(configManager);
         String item = itemRewards.get(index);
         int amount = itemAmounts.get(index);
 
@@ -38,7 +39,8 @@ public class RewardManager {
             itemStack.setQuantity(amount);
             winner.getInventory().offer(itemStack);
 
-            String rewardsString = new StringBuilder("You have received ").append(getItemName(item))
+            String rewardsString = new StringBuilder("You have received ")
+                    .append(itemStackSnapshot.getType().getTranslation().get())
                     .append(" x").append(itemAmounts.get(index)).append("!").toString();
             Text reward = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
                     .append(Text.builder(rewardsString)
@@ -50,9 +52,7 @@ public class RewardManager {
         }
     }
 
-    private int pickRandomReward() throws IOException {
-        ConfigManager configManager = new ConfigManager();
-        configManager.loadRewards();
+    private int pickRandomReward(ConfigManager configManager) throws IOException {
         itemRewards = configManager.getItemRewards();
         itemAmounts = configManager.getItemAmounts();
 
@@ -61,17 +61,7 @@ public class RewardManager {
         return index;
     }
 
-    private String getItemName(String itemID) {
-        String itemName;
-        int itemIDLength = itemID.length();
-        for (int i = 0; i < itemIDLength; i++) {
-            if (Character.valueOf(itemID.charAt(i)).equals(':')) {
-                itemName = itemID.substring(i+1);
-                itemName = itemName.replace("_", " ");
-                return itemName;
-            }
-        }
-
-        return null;
+    public String getItemName(ItemStack itemStack) {
+        return itemStack.get(Keys.DISPLAY_NAME).orElse(Text.of(itemStack.getTranslation().get())).toString();
     }
 }

@@ -16,14 +16,14 @@ import java.net.URISyntaxException;
 
 public class CommandManager {
 
-    public void setupCommand(Whosthatpixelmon mainClass) {
+    public void setupCommand() {
         // /Command to start the chat game
         CommandSpec startChatGame = CommandSpec.builder()
                 .description(Text.of("Starts 'Whos that Pixelmon'"))
                 .permission("whosthatpixelmon.comamnd.start")
                 .executor((CommandSource src, CommandContext args) -> {
                     try {
-                        new ChatGameManager(mainClass).startChatGame();
+                        new ChatGameManager().startChatGame();
                         if (src instanceof Player) {
                             Player player = (Player) src;
                             Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
@@ -47,7 +47,7 @@ public class CommandManager {
                 .permission("whosthatpixelmon.command.start")
                 .child(startChatGame, "start")
                 .build();
-        Sponge.getCommandManager().register(mainClass, wtp, "wtp",  "whosthatpixelmon");
+        Sponge.getCommandManager().register(Whosthatpixelmon.getInstance(), wtp, "wtp",  "whosthatpixelmon");
         //
     }
 }

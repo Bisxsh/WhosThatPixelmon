@@ -1,6 +1,7 @@
 package com.bisxsh.whosthatpixelmon.listeners;
 
 import com.bisxsh.whosthatpixelmon.managers.ChatGameManager;
+import com.google.common.collect.Lists;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.message.MessageChannelEvent;
@@ -12,14 +13,12 @@ import java.util.Optional;
 public class ChatListener {
 
     private ArrayList<String> answers;
-    private Player winner;
     private ChatGameManager chatGameManager;
 
 
     public ChatListener(String answer, String form, ChatGameManager chatGameManager) {
         this.chatGameManager = chatGameManager;
-        answers = new ArrayList<>();
-        answers.add(answer);
+        answers = Lists.newArrayList(answer);
 
         //Add form in answer as optional, usage is unlikely as they generally share the same outline
         if (form != null) {
@@ -43,7 +42,7 @@ public class ChatListener {
             int answersSize = answers.size();
             for (int i = 0; i < answersSize; i++) {
                 if (messageSent.equalsIgnoreCase(answers.get(i))) {
-                    this.winner = optionalPlayer.get();
+                    Player winner = optionalPlayer.get();
                     chatGameManager.processWinner(winner);
                 }
             }

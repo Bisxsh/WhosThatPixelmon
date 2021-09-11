@@ -3,6 +3,7 @@ package com.bisxsh.whosthatpixelmon.mapItem;
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import com.github.ericliucn.realmap.images.ImageSaveTask;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.minecraft.util.text.TextComponentTranslation;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.data.key.Keys;
@@ -33,13 +34,9 @@ public class MapMaker {
     private Whosthatpixelmon mainClass;
 
 
-    public MapMaker(Whosthatpixelmon mainClaass) throws IOException, URISyntaxException {
-        this.mainClass = mainClaass;
+    public MapMaker() throws IOException, URISyntaxException {
+        this.mainClass = Whosthatpixelmon.getInstance();
         this.generateMapsAndDetails();
-    }
-
-    public MapMaker() {
-
     }
 
     private void generateMapsAndDetails() throws IOException, URISyntaxException {
@@ -54,7 +51,7 @@ public class MapMaker {
         }
 
         EnumSpecies enumPokemon = EnumSpecies.getFromDex(Integer.parseInt(dexNumber));
-        pokemonName = enumPokemon.getPokemonName();
+        pokemonName = enumPokemon.getLocalizedName();
         //Fixes compound pokemon names, e.g. MrMime -> Mr Mime, without interrupting on hyphenated names
         //e.g. Porygon-Z
         final int pokemonNameLength = pokemonName.length();
@@ -64,7 +61,7 @@ public class MapMaker {
                 StringBuilder compoundNameBuilder = new StringBuilder(pokemonName.substring(0,i))
                         .append(" ").append(pokemonName.substring(i));
                 pokemonName = compoundNameBuilder.toString();
-                i = pokemonName.length()+1;
+                break;
             }
         }
         //
@@ -149,7 +146,7 @@ public class MapMaker {
         //
     }
 
-    public List<Text> getLore() {
+    public static List<Text> getLore() {
         final Text loreText = Text.of(TextColors.GOLD, TextStyles.ITALIC, "Who's That Pixelmon?");
         final LoreData loreData = Sponge.getDataManager().getManipulatorBuilder(LoreData.class).get().create();
         final ListValue<Text> lore = loreData.lore();

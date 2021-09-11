@@ -6,14 +6,17 @@ import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
+import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 import org.spongepowered.api.text.format.TextColors;
 import org.spongepowered.api.text.format.TextStyles;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.Timer;
 import java.util.TimerTask;
+import java.util.concurrent.TimeUnit;
 
 public class ChatGameManager {
 
@@ -27,20 +30,20 @@ public class ChatGameManager {
     private MapMaker mapMaker;
 
 
-    public ChatGameManager(Whosthatpixelmon mainClass) throws IOException, URISyntaxException {
-        this.mainClass = mainClass;
-        mapMaker = new MapMaker(mainClass);
+    public ChatGameManager() throws IOException, URISyntaxException {
+        this.mainClass = Whosthatpixelmon.getInstance();
+        mapMaker = new MapMaker();
 
         this.hiddenMap = mapMaker.getHiddenMap();
         this.revealedMap = mapMaker.getRevealedMap();
         this.pokemonName = mapMaker.getPokemonName();
         this.pokemonForm = mapMaker.getPokemonForm();
 
-        playerManager = new PlayerManager(hiddenMap, revealedMap, mainClass);
+        playerManager = new PlayerManager(hiddenMap, revealedMap);
 
     }
 
-    public void startChatGame() {
+    public void startChatGame() throws IOException {
 
         //Starting broadcast
         Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
@@ -52,39 +55,59 @@ public class ChatGameManager {
 
         //Give participating players the hidden map
         ChatGameManager chatGameManager = this;
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                playerManager.sendPlayersHiddenMap();
-                chatListener = new ChatListener(pokemonName, pokemonForm, chatGameManager);
-                Sponge.getEventManager().registerListeners(mainClass, chatListener);
-            }
-        }, 5000);
+        Task.builder()
+                .delay(5, TimeUnit.SECONDS)
+                .execute(() -> {
+                    playerManager.sendPlayersHiddenMap();
+                    chatListener = new ChatListener(pokemonName, pokemonForm, chatGameManager);
+                    Sponge.getEventManager().registerListeners(mainClass, chatListener);
+                }).submit(mainClass);
         //
 
+        int guessingTime = new ConfigManager().loadGuessingTime();
+        Task.builder()
+                .delay(guessingTime+5, TimeUnit.SECONDS)
+                .execute(() -> {
+                    if (winner == null) {
+                        try {
+                            if (new ConfigManager().loadRevealAnswer()) {
+                                String answerString = new StringBuilder("It's ").append(getDisplayedAnswer()).toString();
+                                Text text1 = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
+                                        .append(Text.builder("Nobody guessed correctly in time. ")
+                                                .color(TextColors.RED).style(TextStyles.BOLD).build())
+                                        .append(Text.builder(answerString)
+                                                .color(TextColors.RED).style(TextStyles.RESET).build())
+                                        .build();
+                                Sponge.getServer().getBroadcastChannel().send(text1);
+                                playerManager.sendPlayersRevealedMap();
+                            } else {
+                                defaultNoGuess();
+                            }
 
-        //Check if answer has not been received after 30 seconds
-        Timer timer = new Timer();
-        timer.schedule(new TimerTask() {
-            @Override
-            public void run() {
-                if (winner == null) {
-                    Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                            .append(Text.builder("Nobody guessed correctly in time")
-                                    .color(TextColors.RED).style(TextStyles.BOLD).build())
-                            .build();
-                    Sponge.getServer().getBroadcastChannel().send(txt);
-                    playerManager.sendPlayersRevealedMap();
-                    try {
-                        endChatGame();
-                    } catch (IOException | InterruptedException e) {
-                        e.printStackTrace();
+                        } catch (IOException e) {
+                            Whosthatpixelmon.getInstance().getLogger()
+                                    .warn("[Whos that Pixelmon] revealAnswer config was not read correctly, defaulting to false");
+                            defaultNoGuess();
+                            e.printStackTrace();
+                        }
+
+                        try {
+                            endChatGame();
+                        } catch (IOException | InterruptedException e) {
+                            e.printStackTrace();
+                        }
                     }
-                }
-            }
-        }, 35000);
-        //
+                }).submit(mainClass);
 
+    }
+
+    public void defaultNoGuess() {
+        Text text = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
+                .append(Text.builder("Nobody guessed correctly in time")
+                        .color(TextColors.RED).style(TextStyles.BOLD).build())
+                .build();
+        Sponge.getServer().getBroadcastChannel().send(text);
+        playerManager.sendPlayersRevealedMap();
     }
 
     public void processWinner(Player winner) throws IOException, InterruptedException {
@@ -100,11 +123,26 @@ public class ChatGameManager {
         //
 
         //Give player reward
-        RewardManager rewardManager = new RewardManager();
-        rewardManager.giveReward(winner);
+        giveReward(winner);
         //
 
         endChatGame();
+    }
+
+    private void giveReward(Player winner) throws IOException {
+        ConfigManager configManager = new ConfigManager();
+        if (configManager.loadRewards() == true) {
+            new RewardManager().giveReward(winner, configManager);
+        }
+        if (configManager.loadCommands() == true) {
+            ArrayList<String> commandsList = configManager.getCommandsList();
+            for (String command : commandsList) {
+                if (command.contains("<player>")) {
+                    command = command.replace("<player>", winner.getName());
+                }
+                Sponge.getCommandManager().process(Sponge.getServer().getConsole(), command);
+            }
+        }
     }
 
     private String getDisplayedAnswer() {

@@ -6,6 +6,9 @@ import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
 import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.checkerframework.checker.nullness.qual.NonNull;
+import org.checkerframework.checker.units.qual.A;
+import org.spongepowered.api.Sponge;
+import org.spongepowered.api.asset.Asset;
 
 import java.io.File;
 import java.io.IOException;
@@ -14,7 +17,7 @@ import java.util.List;
 
 public class ConfigManager {
 
-    private ArrayList<String> itemRewards;
+    private ArrayList<String> itemRewards, commandsList;
     private ArrayList<Integer> itemAmounts;
     private int minTime, maxTime;
     private ConfigurationLoader<CommentedConfigurationNode> loader;
@@ -26,16 +29,26 @@ public class ConfigManager {
     }
 
     private ConfigurationNode loadRootNode() throws IOException {
-        File configFile = new File("config/whosthatpixelmon.conf");
+        File configFile = new File("config/whosthatpixelmon/whosthatpixelmon.conf");
         loader = HoconConfigurationLoader.builder()
                 .setFile(configFile).build();
         ConfigurationNode rootNode = loader.load();
         return rootNode;
     }
 
-    public void loadRewards() throws IOException {
-
+    public Boolean loadRewards() throws IOException {
         ConfigurationNode rootNode = loadRootNode();
+
+        try {
+            Boolean rewardsEnabled = rootNode.getNode("itemsEnabled").getBoolean();
+            if (!rewardsEnabled) {
+                return false;
+            }
+        } catch (Exception e) {
+            Whosthatpixelmon.getInstance().getLogger()
+                    .warn("[Whos that Pixelmon] itemsEnabled was unable to be read, defaulting to true");
+        }
+
         List<? extends ConfigurationNode> list = rootNode.getNode("item").getChildrenList();
         int listSize = list.size();
         for (int i = 0; i < listSize; i++) {
@@ -43,9 +56,33 @@ public class ConfigManager {
             itemRewards.add(node.getNode("name").getString());
             itemAmounts.add(node.getNode("amount").getInt());
         }
+        return true;
     }
 
-    public void loadTimeIntervals(Whosthatpixelmon mainClass) throws IOException {
+    public Boolean loadCommands() throws IOException {
+        ConfigurationNode rootNode = loadRootNode();
+        Boolean commandsEnabled = rootNode.getNode("commandsEnabled").getBoolean();
+
+        if (!commandsEnabled) {
+           return false;
+        }
+
+        commandsList = new ArrayList<>();
+        List<? extends ConfigurationNode> list = rootNode.getNode("commands").getChildrenList();
+        int listSize = list.size();
+        for (int i = 0; i < listSize; i++) {
+            ConfigurationNode node = list.get(i);
+            commandsList.add(node.getString());
+        }
+        return true;
+    }
+
+    public Boolean loadRevealAnswer() throws IOException {
+        ConfigurationNode rootNode = loadRootNode();
+        return rootNode.getNode("revealAnswer").getBoolean();
+    }
+
+    public void loadTimeIntervals(Whosthatpixelmon mainClass) {
         try {
             ConfigurationNode node = loadRootNode().getNode("time");
             minTime = node.getNode("minimumTimeInterval").getInt();
@@ -58,35 +95,32 @@ public class ConfigManager {
 
     }
 
+    public int loadGuessingTime() throws IOException {
+        int guessingTime;
+        ConfigurationNode rootnode = loadRootNode();
+        try {
+            guessingTime = rootnode.getNode("guessingTime").getInt();
+        } catch (Exception e) {
+            Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read guessingTIme from config, default value was used");
+            guessingTime = 30;
+        }
+        return guessingTime;
+    }
+
     private void initialSetup() throws IOException {
-        Boolean fileCreated = createFileIfNeeded();
-        if (fileCreated) {
-            ConfigurationNode rootNode = loadRootNode();
-
-            //Set up default item rewards
-            ConfigurationNode itemNode = rootNode.getNode("item");
-            @NonNull ConfigurationNode firstItem = itemNode.appendListNode();
-            firstItem.getNode("name").setValue("pixelmon:rare_candy");
-            firstItem.getNode("amount").setValue(2);
-            @NonNull ConfigurationNode secondItem = itemNode.appendListNode();
-            secondItem.getNode("name").setValue("pixelmon:ultra_ball");
-            secondItem.getNode("amount").setValue(2);
-            //
-
-            //Set up default time interval
-            ConfigurationNode timeNode = rootNode.getNode("time");
-            timeNode.getNode("minimumTimeInterval").setValue(30);
-            timeNode.getNode("maximumTimeInterval").setValue(35);
-            //
-
-            loader.save(rootNode);
+        if (!fileExists()) {
+            Asset defaultConfigAsset = Whosthatpixelmon.getInstance().getDefaultConfigAsset();
+            try {
+                defaultConfigAsset.copyToDirectory(Whosthatpixelmon.getInstance().getConfigPath());
+            } catch (IOException e) {
+                Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to create default config file");
+            }
         }
     }
 
-    private Boolean createFileIfNeeded() throws IOException {
-        File configFile = new File("config/whosthatpixelmon.conf");
-        if (!configFile.exists()) {
-            configFile.createNewFile();
+    private Boolean fileExists() throws IOException {
+        File configFile = new File("config/whosthatpixelmon/whosthatpixelmon.conf");
+        if (configFile.exists()) {
             return true;
         }
         return false;
@@ -98,6 +132,10 @@ public class ConfigManager {
 
     public ArrayList<Integer> getItemAmounts() {
         return itemAmounts;
+    }
+
+    public ArrayList<String> getCommandsList() {
+        return commandsList;
     }
 
     public int getMinTime() {
