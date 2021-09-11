@@ -5,6 +5,7 @@ A ChatGame plugin for Pixelmon to mimic the 'Whos that Pixelmon' intervals from 
 
 ### Installation
 Check out the project on [Ore](https://ore.spongepowered.org/Bisxsh/WhosThatPixelmon)  
+Get the latest jar file (Version 1.1.0) [here](https://ore.spongepowered.org/Bisxsh/WhosThatPixelmon/versions/1.1.0)  
   
 Drag the jar into your server's mods folder.  
 Make sure you have the dependencies [*RealMap*](https://ore.spongepowered.org/Eric12324/RealMap) and [*Pixelmon Reforged*](https://reforged.gg/) installed.
