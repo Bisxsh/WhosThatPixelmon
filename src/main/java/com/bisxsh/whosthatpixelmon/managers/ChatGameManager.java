@@ -14,8 +14,6 @@ import org.spongepowered.api.text.format.TextStyles;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ChatGameManager {
@@ -46,11 +44,9 @@ public class ChatGameManager {
     public void startChatGame() throws IOException {
 
         //Starting broadcast
-        Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                .append(Text.builder("'Whos that Pixelmon' will begin in 5 seconds. Have an empty main hand to participate")
-                        .color(TextColors.GREEN).style(TextStyles.RESET).build())
-                .build();
-        Sponge.getServer().getBroadcastChannel().send(txt);
+        Text txt = Text.builder("'Whos that Pixelmon' will begin in 5 seconds." +
+                        " Have an empty main hand to participate").build();
+        BroadcastManager.getInstance().sendBroadcast(txt);
         //
 
         //Give participating players the hidden map

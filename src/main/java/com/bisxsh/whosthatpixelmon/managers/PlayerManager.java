@@ -11,19 +11,13 @@ import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerManager {
     private ItemStack hiddenMap, revealedMap;
-    private ArrayList<Player> disabledPlayers;
     private MapHandler showMap;
     private ArrayList<ParticipatingPlayerInfo> participatingPlayerList;
     private Whosthatpixelmon mainClass;
@@ -31,7 +25,6 @@ public class PlayerManager {
     public PlayerManager (ItemStack hiddenMap, ItemStack revealedMap) {
         this.hiddenMap = hiddenMap;
         this.revealedMap = revealedMap;
-        disabledPlayers = new ArrayList<>();
         participatingPlayerList = new ArrayList<>();
         showMap = new MapHandler();
         this.mainClass = Whosthatpixelmon.getInstance();
@@ -42,23 +35,19 @@ public class PlayerManager {
         Collection<Player> onlinePlayers = Sponge.getServer().getOnlinePlayers();
 
         for (Player player : onlinePlayers) {
-            if (!disabledPlayers.contains(player)) { //Finds all online players with the chat-game enabled
-                if (player.getItemInHand(HandTypes.MAIN_HAND).get().isEmpty()) {
+            if (player.getItemInHand(HandTypes.MAIN_HAND).get().isEmpty()) {
 
-                    Inventory storedSlot = showMap.showHiddenMap(player, hiddenMap);
+                Inventory storedSlot = showMap.showHiddenMap(player, hiddenMap);
 
-                    SlotListener slotListener = new SlotListener(storedSlot, player, this);
-                    Sponge.getEventManager().registerListeners(mainClass, slotListener);
+                SlotListener slotListener = new SlotListener(storedSlot, player, this);
+                Sponge.getEventManager().registerListeners(mainClass, slotListener);
 
-                    ParticipatingPlayerInfo participatingPlayerInfo = new ParticipatingPlayerInfo(player, storedSlot, slotListener);
-                    participatingPlayerList.add(participatingPlayerInfo);
-                } else {
-                    Text errorTxt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                            .append(Text.builder("Failed to give map as your main hand was not empty.")
-                                    .color(TextColors.RED).style(TextStyles.RESET).build())
-                            .build();
-                    MessageChannel.fixed(player).send(errorTxt);
-                }
+                ParticipatingPlayerInfo participatingPlayerInfo = new ParticipatingPlayerInfo(player, storedSlot, slotListener);
+                participatingPlayerList.add(participatingPlayerInfo);
+            } else {
+                Text errorTxt = Text.builder("Failed to give map as your main hand was not empty.")
+                        .build();
+                BroadcastManager.getInstance().sendPlayerBroadcast(errorTxt, player);
             }
         }
     }
@@ -72,7 +61,7 @@ public class PlayerManager {
             SlotListener listener = playerInfo.getSlotListener();
 
             Sponge.getEventManager().unregisterListeners(listener);
-            showMap.removeMap(storedSlot);
+            showMap.removeMap(storedSlot, hiddenMap, playerInfo.getPlayer());
 
             showMap.showRevealedMap(storedSlot, revealedMap);
             Sponge.getEventManager().registerListeners(mainClass, listener);
@@ -81,14 +70,15 @@ public class PlayerManager {
                     .delay(5, TimeUnit.SECONDS)
                     .execute(() -> {
                         Sponge.getEventManager().unregisterListeners(listener);
-                        showMap.removeMap(storedSlot);
+                        showMap.removeMap(storedSlot, revealedMap, playerInfo.getPlayer());
                         removeListeners();
                     }).submit(Whosthatpixelmon.getInstance());
         }
     }
 
-    public void removeDisconnectedMap(Inventory storedSlot) {
-        showMap.removeMap(storedSlot);
+    public void removeDisconnectedMap(Inventory storedSlot, Player player) {
+        showMap.removeMap(storedSlot, hiddenMap, player);
+        showMap.removeMap(storedSlot, revealedMap, player);
     }
 
     public void removeListeners() {

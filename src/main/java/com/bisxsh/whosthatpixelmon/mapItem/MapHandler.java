@@ -14,6 +14,8 @@ import java.util.List;
 
 public class MapHandler {
 
+    private Inventory playerInv;
+
     public MapHandler() {
     }
 
@@ -21,7 +23,8 @@ public class MapHandler {
         Inventory storedSlot = null;
         player.setItemInHand(HandTypes.MAIN_HAND, hiddenMap);
 
-        Inventory playerInv = player.getInventory();
+
+        playerInv = player.getInventory();
         Inventory filteredInv = playerInv.query(QueryOperationTypes.ITEM_TYPE.of(ItemTypes.FILLED_MAP));
 
         //Compare lore and get slot in player inv
@@ -41,8 +44,19 @@ public class MapHandler {
         storedSlot.set(revealedMap);
     }
 
-    public void removeMap(Inventory storedSlot) {
+    public void removeMap(Inventory storedSlot, ItemStack item, Player player) {
+        if (storedSlot.contains(item)) {
             storedSlot.set(ItemStackSnapshot.NONE.createStack());
+        } else {
+            for (Inventory slot : player.getInventory().slots()) {
+                if (slot.contains(item)) {
+                    slot.set(ItemStackSnapshot.NONE.createStack());
+                    if (storedSlot.peek().isPresent()) {
+                        slot.set(storedSlot.peek().get());
+                    }
+                }
+            }
+        }
     }
 
 }

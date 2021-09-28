@@ -2,16 +2,12 @@ package com.bisxsh.whosthatpixelmon.listeners;
 
 import com.bisxsh.whosthatpixelmon.managers.PlayerManager;
 import org.spongepowered.api.data.key.Keys;
-import org.spongepowered.api.data.type.HandTypes;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
-import org.spongepowered.api.entity.hanging.ItemFrame;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
-import org.spongepowered.api.event.item.inventory.AffectSlotEvent;
-import org.spongepowered.api.event.item.inventory.ClickInventoryEvent;
-import org.spongepowered.api.event.item.inventory.DropItemEvent;
+import org.spongepowered.api.event.item.inventory.*;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -28,11 +24,13 @@ import java.util.Optional;
 public class SlotListener {
 
     private Inventory storedSlot;
+    private ItemStack mapItem;
     private Player player;
     private PlayerManager playerManager;
 
     public SlotListener (Inventory storedSlot, Player player, PlayerManager playerManager) {
         this.storedSlot = storedSlot;
+        this.mapItem = storedSlot.peek().get();
         this.player = player;
         this.playerManager = playerManager;
     }
@@ -58,6 +56,11 @@ public class SlotListener {
             Optional<ItemStack> itemStored = slot.peek();
             if (itemStored.equals(storedSlot.peek())) {
                 event.setCancelled(true);
+            } else {
+                if (!storedSlot.contains(mapItem)) {
+                    event.getCursorTransaction().setValid(false);
+                    storedSlot.set(mapItem);
+                }
             }
         }
     }
@@ -98,7 +101,7 @@ public class SlotListener {
     public void onPlayerDiscconect(ClientConnectionEvent.Disconnect event) {
         Player playerFromEvent = event.getTargetEntity();
         if (playerFromEvent.equals(player)) {
-            playerManager.removeDisconnectedMap(storedSlot);
+            playerManager.removeDisconnectedMap(storedSlot, player);
         }
     }
     //

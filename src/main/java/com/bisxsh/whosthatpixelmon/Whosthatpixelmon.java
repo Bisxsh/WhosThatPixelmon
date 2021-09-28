@@ -5,16 +5,11 @@ import com.bisxsh.whosthatpixelmon.managers.TimeManager;
 import com.bisxsh.whosthatpixelmon.mapItem.MapHandler;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
 import com.google.inject.Inject;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.Mod;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -108,7 +103,7 @@ public class Whosthatpixelmon {
                 Optional<List<Text>> itemLore = item.get(Keys.ITEM_LORE);
                 if (itemLore.isPresent()) {
                     if (itemLore.get().equals(lore)) {
-                        mapHandler.removeMap(slot);
+                        mapHandler.removeMap(slot, item, player);
                     }
                 }
             }
