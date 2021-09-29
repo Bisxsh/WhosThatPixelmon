@@ -1,5 +1,6 @@
 package com.bisxsh.whosthatpixelmon.listeners;
 
+import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.bisxsh.whosthatpixelmon.managers.PlayerManager;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
@@ -14,9 +15,6 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
 import org.spongepowered.api.item.inventory.transaction.SlotTransaction;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
 
 import java.util.List;
 import java.util.Optional;
@@ -74,11 +72,8 @@ public class SlotListener {
             Player playerFromEvent = optionalPlayer.get();
             if (playerFromEvent.equals(player)) {
                 event.setCancelled(true);
-                MessageChannel playerChannel = MessageChannel.fixed(player);
-                Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                        .append(Text.builder("You can not drop items while the chat game is active")
-                                .color(TextColors.RED).style(TextStyles.RESET).build()).build();
-                playerChannel.send(Text.of(txt));
+                Text txt = Text.builder("You can not drop items while the chat game is active").build();
+                BroadcastManager.getInstance().sendPlayerBroadcast(Text.of(txt), player);
             }
         }
     }
