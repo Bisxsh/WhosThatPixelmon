@@ -81,7 +81,7 @@ public class Whosthatpixelmon {
     public void onServerStart(GameStartedServerEvent event) throws IOException {
         logger.info("WhosThatPixelmon has started");
         new CommandManager().setupCommand();
-        setTimeInterval();
+//        setTimeInterval();
     }
 
     @Listener
