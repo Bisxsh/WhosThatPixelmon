@@ -105,4 +105,8 @@ public class SlotListener {
         }
     }
     //
+
+    public void setMapItem(ItemStack mapItem) {
+        this.mapItem = mapItem;
+    }
 }

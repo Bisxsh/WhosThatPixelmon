@@ -64,14 +64,15 @@ public class PlayerManager {
             showMap.removeMap(storedSlot, hiddenMap, playerInfo.getPlayer());
 
             showMap.showRevealedMap(storedSlot, revealedMap);
+            listener.setMapItem(revealedMap);
             Sponge.getEventManager().registerListeners(mainClass, listener);
 
             Task.builder()
                     .delay(5, TimeUnit.SECONDS)
                     .execute(() -> {
                         Sponge.getEventManager().unregisterListeners(listener);
-                        showMap.removeMap(storedSlot, revealedMap, playerInfo.getPlayer());
                         removeListeners();
+                        showMap.removeMap(storedSlot, revealedMap, playerInfo.getPlayer());
                     }).submit(Whosthatpixelmon.getInstance());
         }
     }
