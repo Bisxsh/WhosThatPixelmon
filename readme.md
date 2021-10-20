@@ -64,6 +64,9 @@ time {
 
 #Time interval in seconds for players to enter guesses for the chat game
 guessingTime=30
+
+#Prefix that will be shown in front of messages that are broadcast, e.g. [Chat Games]
+prefix = "[Chat Games]"
 ```  
 #### Changing item rewards:  
 To change the possible item rewards, simply copy and paste the following block of text inbetween the square brackets, making sure there is a comma after the final curly brace if another block is to follow. The amount of blocks represent the amount of potential item rewards when the chat game is answered correctly.  
@@ -92,8 +95,10 @@ The time interval allocated for player guesses can be modified by changing the v
 #### Changing interval times:  
 The time node in the config file defines the time interval for the chat game to take place.  
 **mimimumTimeInterval** and **maximumTimeInterval** is the earliest and latest that a new instance of the chat game will launch in minutes following an instance that has passed. If the server has started, these values will define the earliest and latest the first instance of the chat game will launch.  
-
 The time that the chat game launches will be randomised between these defined intervals. If you would like a static time between launches, simply put down the same value for both intervals, which will cause the game to launch at exactly the time specified.  
+  
+#### Changing prefix:  
+The prefix node will define the message that is shown before all in-game chat messages that are sent by the plugin. Changing the contents of this string will change the prefix displayed on all messages.  
    
 #### Contact me  
 Please report any bugs with the plugin on the [Issue Tracker](https://github.com/Bisxsh/WhosThatPixelmon/issues).  
