@@ -68,9 +68,7 @@ public class ChatGameManager {
                         try {
                             if (new ConfigManager().loadRevealAnswer()) {
                                 String answerString = new StringBuilder("It's ").append(getDisplayedAnswer()).toString();
-                                Text text1 = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                                        .append(Text.builder("Nobody guessed correctly in time. ")
-                                                .color(TextColors.RED).style(TextStyles.BOLD).build())
+                                Text text1 = Text.builder("Nobody guessed correctly in time. ")
                                         .append(Text.builder(answerString)
                                                 .color(TextColors.RED).style(TextStyles.RESET).build())
                                         .build();
@@ -98,11 +96,7 @@ public class ChatGameManager {
     }
 
     public void defaultNoGuess() {
-        Text text = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                .append(Text.builder("Nobody guessed correctly in time")
-                        .color(TextColors.RED).style(TextStyles.BOLD).build())
-                .build();
-        Sponge.getServer().getBroadcastChannel().send(text);
+        Sponge.getServer().getBroadcastChannel().send(Text.of("Nobody guessed correctly in time"));
         playerManager.sendPlayersRevealedMap();
     }
 
@@ -111,11 +105,8 @@ public class ChatGameManager {
         playerManager.sendPlayersRevealedMap();
 
         //Broadcast winner
-        Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                .append(Text.builder(winner.getName()+" guessed correctly. It's "+ getDisplayedAnswer())
-                        .color(TextColors.GREEN).style(TextStyles.RESET).build())
-                .build();
-        Sponge.getServer().getBroadcastChannel().send(txt);
+        Text txt = Text.builder(winner.getName()+" guessed correctly. It's "+ getDisplayedAnswer()).build();
+        BroadcastManager.getInstance().sendBroadcast(txt);
         //
 
         //Give player reward

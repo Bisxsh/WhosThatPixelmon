@@ -2,7 +2,7 @@
     {
         "modid": "whosthatpixelmon",
         "name": "whosthatpixelmon",
-        "version": "1.1.0",
+        "version": "1.1.1",
         "description": "A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show",
         "authorList": [
             "Bisxsh"

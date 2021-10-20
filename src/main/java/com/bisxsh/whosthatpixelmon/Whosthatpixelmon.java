@@ -1,6 +1,8 @@
 package com.bisxsh.whosthatpixelmon;
 
+import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.bisxsh.whosthatpixelmon.managers.CommandManager;
+import com.bisxsh.whosthatpixelmon.managers.ConfigManager;
 import com.bisxsh.whosthatpixelmon.managers.TimeManager;
 import com.bisxsh.whosthatpixelmon.mapItem.MapHandler;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
@@ -39,7 +41,7 @@ import java.util.Optional;
         id = "whosthatpixelmon",
         name = "whosthatpixelmon",
         description = "A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show",
-        version = "1.1.0",
+        version = "1.1.1",
         authors = "Bisxsh",
         dependencies = {@Dependency(id = "realmap"), @Dependency(id = "pixelmon")}
 )
@@ -80,6 +82,8 @@ public class Whosthatpixelmon {
     @Listener
     public void onServerStart(GameStartedServerEvent event) throws IOException {
         logger.info("WhosThatPixelmon has started");
+        timeManager = new TimeManager();
+        new BroadcastManager(new ConfigManager().loadPrefix());
         new CommandManager().setupCommand();
 //        setTimeInterval();
     }
@@ -116,7 +120,6 @@ public class Whosthatpixelmon {
     }
 
     public void setTimeInterval() throws IOException {
-        timeManager = new TimeManager();
         timeManager.setChatGameTimer();
     }
 

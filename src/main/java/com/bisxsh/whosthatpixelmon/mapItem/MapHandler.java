@@ -11,6 +11,7 @@ import org.spongepowered.api.item.inventory.query.QueryOperationTypes;
 import org.spongepowered.api.text.Text;
 
 import java.util.List;
+import java.util.Optional;
 
 public class MapHandler {
 
@@ -28,12 +29,15 @@ public class MapHandler {
         Inventory filteredInv = playerInv.query(QueryOperationTypes.ITEM_TYPE.of(ItemTypes.FILLED_MAP));
 
         //Compare lore and get slot in player inv
-        List<Text> mapLore = hiddenMap.get(Keys.ITEM_LORE).get();
-        for(Inventory slot : filteredInv.slots()) {
-            ItemStack stack = slot.peek().get();
-            List<Text> lore = stack.get(Keys.ITEM_LORE).get();
-            if (lore.equals(mapLore)) {
-                storedSlot = slot;
+        Optional<List<Text>> optMapLore = hiddenMap.get(Keys.ITEM_LORE);
+        if (optMapLore.isPresent()){
+            List<Text> mapLore = optMapLore.get();
+            for(Inventory slot : filteredInv.slots()) {
+                ItemStack stack = slot.peek().get();
+                List<Text> lore = stack.get(Keys.ITEM_LORE).get();
+                if (lore.equals(mapLore)) {
+                    storedSlot = slot;
+                }
             }
         }
         //

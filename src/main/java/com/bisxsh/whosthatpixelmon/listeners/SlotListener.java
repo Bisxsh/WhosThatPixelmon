@@ -64,6 +64,20 @@ public class SlotListener {
     }
     //
 
+    //Prevents item from being moved if transferred to a different slot via number click
+    @Listener
+    public void onNumberClicked(ClickInventoryEvent.NumberPress event) {
+        List<SlotTransaction> eventTransactions = event.getTransactions();
+        for (SlotTransaction slotTransaction : eventTransactions) {
+            if (slotTransaction.getDefault().equals(mapItem.createSnapshot()) ||
+                    slotTransaction.getOriginal().equals(mapItem.createSnapshot())) {
+                slotTransaction.setValid(false);
+                slotTransaction.getSlot().set(slotTransaction.getOriginal().createStack());
+            }
+        }
+    }
+    //
+
     //Prevents item from being dropped
     @Listener
     public void onItemDropped(DropItemEvent.Dispense event) {
@@ -73,7 +87,7 @@ public class SlotListener {
             if (playerFromEvent.equals(player)) {
                 event.setCancelled(true);
                 Text txt = Text.builder("You can not drop items while the chat game is active").build();
-                BroadcastManager.getInstance().sendPlayerBroadcast(Text.of(txt), player);
+                BroadcastManager.getInstance().sendPlayerBroadcast(txt, player);
             }
         }
     }

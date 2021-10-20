@@ -98,10 +98,22 @@ public class ConfigManager {
         try {
             guessingTime = rootnode.getNode("guessingTime").getInt();
         } catch (Exception e) {
-            Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read guessingTIme from config, default value was used");
+            Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read guessingTime from config, default value was used");
             guessingTime = 30;
         }
         return guessingTime;
+    }
+
+    public String loadPrefix() throws IOException {
+        String prefix;
+        ConfigurationNode rootnode = loadRootNode();
+        try {
+            prefix = rootnode.getNode("prefix").getString();
+        } catch (Exception e) {
+            Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read Prefix from config, default value was used");
+            prefix = "[Chat Games]";
+        }
+        return prefix;
     }
 
     private void initialSetup() throws IOException {

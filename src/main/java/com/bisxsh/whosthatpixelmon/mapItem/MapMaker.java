@@ -1,6 +1,7 @@
 package com.bisxsh.whosthatpixelmon.mapItem;
 
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.github.ericliucn.realmap.images.ImageSaveTask;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import org.spongepowered.api.Sponge;
@@ -67,26 +68,20 @@ public class MapMaker {
     }
 
     private String obtainPokemonName(String dexNumber) {
+        //Get pokemon name from dex number
         EnumSpecies enumPokemon = EnumSpecies.getFromDex(Integer.parseInt(dexNumber));
         pokemonName = enumPokemon.getLocalizedName();
-        //Fixes compound pokemon names, e.g. MrMime -> Mr Mime, without interrupting on hyphenated names
-        //e.g. Porygon-Z
-        final int pokemonNameLength = pokemonName.length();
-        for (int i = 1; i < pokemonNameLength; i++) {
-            char character = pokemonName.charAt(i);
-            if (Character.isUpperCase(character) && Character.valueOf(pokemonName.charAt(i-1)) != '-') {
-                StringBuilder compoundNameBuilder = new StringBuilder(pokemonName.substring(0,i))
-                        .append(" ").append(pokemonName.substring(i));
-                pokemonName = compoundNameBuilder.toString();
-                break;
-            }
+
+
+        //Remove accents from "Flabebe"
+        if (dexNumber == "669") {
+            pokemonName = "Flabebe";
         }
-        //
+
         return pokemonName;
     }
 
     private void getRandomPokemon() throws IOException {
-
         Asset fileNamesAsset = mainClass.getFileNamesAsset();
         List<String> fileNames = fileNamesAsset.readLines();
         Random rand = new Random();

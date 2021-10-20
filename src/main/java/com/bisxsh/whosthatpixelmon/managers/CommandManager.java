@@ -26,11 +26,8 @@ public class CommandManager {
                         new ChatGameManager().startChatGame();
                         if (src instanceof Player) {
                             Player player = (Player) src;
-                            Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                                    .append(Text.builder("Forcibly started 'Whos that Pixelmon'")
-                                            .color(TextColors.GREEN).style(TextStyles.RESET).build())
-                                    .build();
-                            player.sendMessage(txt);
+                            Text txt = Text.builder("Forcibly started 'Whos that Pixelmon'").build();
+                            BroadcastManager.getInstance().sendPlayerBroadcast(txt, player);
                         }
                     } catch (IOException e) {
                         e.printStackTrace();
