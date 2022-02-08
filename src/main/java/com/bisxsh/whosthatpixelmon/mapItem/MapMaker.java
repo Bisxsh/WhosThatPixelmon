@@ -74,7 +74,7 @@ public class MapMaker {
 
 
         //Remove accents from "Flabebe"
-        if (dexNumber == "669") {
+        if (dexNumber.equals("669")) {
             pokemonName = "Flabebe";
         }
 
@@ -189,5 +189,19 @@ public class MapMaker {
 
     public String getPokemonName() {
         return pokemonName;
+    }
+
+    public String getDisplayedAnswer() {
+        String answer;
+        if (pokemonForm != null) {
+            answer = new StringBuilder(pokemonName)
+                    .append(" (")
+                    .append(pokemonForm)
+                    .append(")")
+                    .toString();
+        } else {
+            answer = pokemonName;
+        }
+        return answer;
     }
 }

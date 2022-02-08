@@ -41,7 +41,7 @@ import java.util.Optional;
         id = "whosthatpixelmon",
         name = "whosthatpixelmon",
         description = "A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show",
-        version = "1.1.1",
+        version = "1.2",
         authors = "Bisxsh",
         dependencies = {@Dependency(id = "realmap"), @Dependency(id = "pixelmon")}
 )
@@ -84,7 +84,7 @@ public class Whosthatpixelmon {
         logger.info("WhosThatPixelmon has started");
         timeManager = new TimeManager();
         new BroadcastManager(new ConfigManager().loadPrefix());
-        new CommandManager().setupCommand();
+        new CommandManager().setupCommands();
 //        setTimeInterval();
     }
 
@@ -95,8 +95,7 @@ public class Whosthatpixelmon {
 
     @Listener
     public void onPlayerJoined(ClientConnectionEvent.Join event) {
-        //Check if player has map and remove to fix Players retaining map
-        //if server stopped during Chat-Game runtime
+        //Check if player has map and remove to fix Players retaining map if server stopped during Chat-Game runtime
         Player player = event.getTargetEntity();
         Iterable<Inventory> playerInv = player.getInventory().slots();
         List<Text> lore = MapMaker.getLore();

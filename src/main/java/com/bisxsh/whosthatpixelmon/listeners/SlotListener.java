@@ -2,14 +2,17 @@ package com.bisxsh.whosthatpixelmon.listeners;
 
 import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.bisxsh.whosthatpixelmon.managers.PlayerManager;
+import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.Entity;
 import org.spongepowered.api.entity.EntityTypes;
+import org.spongepowered.api.entity.Item;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.*;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
+import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
@@ -81,15 +84,17 @@ public class SlotListener {
     //Prevents item from being dropped
     @Listener
     public void onItemDropped(DropItemEvent.Dispense event) {
-        Optional<Player> optionalPlayer = event.getCause().first(Player.class);
-        if (optionalPlayer.isPresent()) {
-            Player playerFromEvent = optionalPlayer.get();
-            if (playerFromEvent.equals(player)) {
-                event.setCancelled(true);
-                Text txt = Text.builder("You can not drop items while the chat game is active").build();
-                BroadcastManager.getInstance().sendPlayerBroadcast(txt, player);
+        for(Entity e :event.getEntities()){ {
+            if (e instanceof Item) {
+                ItemStack affectedStack = ((Item) e).getItemData().item().get().createStack();
+                Optional<List<Text>> optLore = affectedStack.get(Keys.ITEM_LORE);
+                if (optLore.isPresent()) {
+                    if (optLore.get().equals(MapMaker.getLore())) {
+                        event.setCancelled(true);
+                    }
+                }
             }
-        }
+        }}
     }
     //
 

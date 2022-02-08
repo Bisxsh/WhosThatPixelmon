@@ -3,6 +3,12 @@ package com.bisxsh.whosthatpixelmon.managers;
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import com.bisxsh.whosthatpixelmon.listeners.ChatListener;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
+import com.pixelmonmod.pixelmon.Pixelmon;
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.client.gui.GuiResources;
+import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
+import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.minecraft.util.ResourceLocation;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -68,11 +74,11 @@ public class ChatGameManager {
                         try {
                             if (new ConfigManager().loadRevealAnswer()) {
                                 String answerString = new StringBuilder("It's ").append(getDisplayedAnswer()).toString();
-                                Text text1 = Text.builder("Nobody guessed correctly in time. ")
+                                Text answerText = Text.builder("Nobody guessed correctly in time. ")
                                         .append(Text.builder(answerString)
                                                 .color(TextColors.RED).style(TextStyles.RESET).build())
                                         .build();
-                                Sponge.getServer().getBroadcastChannel().send(text1);
+                                BroadcastManager.getInstance().sendBroadcast(answerText);
                                 playerManager.sendPlayersRevealedMap();
                             } else {
                                 defaultNoGuess();
@@ -96,7 +102,7 @@ public class ChatGameManager {
     }
 
     public void defaultNoGuess() {
-        Sponge.getServer().getBroadcastChannel().send(Text.of("Nobody guessed correctly in time"));
+        BroadcastManager.getInstance().sendBroadcast(Text.of("Nobody guessed correctly in time"));
         playerManager.sendPlayersRevealedMap();
     }
 
@@ -118,10 +124,10 @@ public class ChatGameManager {
 
     private void giveReward(Player winner) throws IOException {
         ConfigManager configManager = new ConfigManager();
-        if (configManager.loadRewards() == true) {
+        if (configManager.loadRewards()) {
             new RewardManager().giveReward(winner, configManager);
         }
-        if (configManager.loadCommands() == true) {
+        if (configManager.loadCommands()) {
             ArrayList<String> commandsList = configManager.getCommandsList();
             for (String command : commandsList) {
                 if (command.contains("<player>")) {
@@ -135,7 +141,11 @@ public class ChatGameManager {
     private String getDisplayedAnswer() {
         String answer;
         if (pokemonForm != null) {
-            answer = new StringBuilder(pokemonName).append(" ("+pokemonForm+")").toString();
+            answer = new StringBuilder(pokemonName)
+                    .append(" (")
+                    .append(pokemonForm)
+                    .append(")")
+                    .toString();
         } else {
             answer = pokemonName;
         }
