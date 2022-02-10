@@ -5,7 +5,7 @@ A ChatGame plugin for Pixelmon to mimic the 'Whos that Pixelmon' intervals from 
 
 ### Installation
 Check out the project on [Ore](https://ore.spongepowered.org/Bisxsh/WhosThatPixelmon)  
-Get the latest jar file [(Version 1.1.0)](https://ore.spongepowered.org/Bisxsh/WhosThatPixelmon/versions/1.1.0)  
+Get the latest jar file [(Version 1.2.0)](https://ore.spongepowered.org/Bisxsh/WhosThatPixelmon/versions/1.2.0)  
   
 Drag the jar into your server's mods folder.  
 Make sure you have the dependencies [*RealMap*](https://ore.spongepowered.org/Eric12324/RealMap) and [*Pixelmon Reforged*](https://reforged.gg/) installed.
@@ -25,12 +25,12 @@ Forces the chat game to start and resets the time elapsed towards the next insta
 The config file for this plugin is located in `config/whosthatpixelmon/whosthatpixelmon.conf` within your server's folder.  
 **Default Config File:**  
 ```
-#List of potential item rewards, a random item will be selected from the list if itemRewardsEnabled=true
+# List of potential item rewards, a random item will be selected from the list if itemRewardsEnabled=true
 item=[
     {
-        #Quantity of item being given
+        # Quantity of item being given
         amount=2 
-        #The ItemID of the item being rewarded, enable tooltips ingame to see itemIDs when hovering over items
+        # The ItemID of the item being rewarded, enable tooltips in-game to see itemIDs when hovering over items
         name="pixelmon:rare_candy"
     },
     {
@@ -39,35 +39,125 @@ item=[
     }
 ]
 
-#Enables item rewards being given
+# Enables item rewards being given
 itemsEnabled=true
 
-#List of commands to be run by the server when a player wins the chat game (all commands will be exectued)
-#Type <player> in the command string to insert the winning player in the command.
-#The command you enter here must be a valid command that is executable by the server.
+# List of commands to be run by the server when a player wins the chat game (all commands will be executed)
+# Type <player> in the command string to insert the winning player in the command.
+# The command you enter here must be a valid command that is executable by the server.
 commands=[
         "give <player> minecraft:diamond 1" #example command, will give the winning player a diamond
         "give <player> minecraft:emerald 1"
 ]
 
-#Enable/disable commands list (see above) being executed when a player wins
+# Enable/disable commands list (see above) being executed when a player wins
 commandsEnabled=false
 
-#Enable/disable answer being revealed if the sprite is not guessed correctly in time
+# Enable/disable answer being revealed if the sprite is not guessed correctly in time
 revealAnswer=false
 
-#Time interval between successive instances of the chatgame. A random time between these values will be used when counting
-#towards the next event launch. Make both values the same if you want the event to launch at the same time interval.
+# Time interval between successive instances of the chat-game. A random time between these values will be used when counting
+# towards the next event launch. Make both values the same if you want the event to launch at the same time interval.
 time {
     maximumTimeInterval=35
     minimumTimeInterval=30
 }
 
-#Time interval in seconds for players to enter guesses for the chat game
+# Time interval in seconds for players to enter guesses for the chat game
 guessingTime=30
 
-#Prefix that will be shown in front of messages that are broadcast, e.g. [Chat Games]
+# Prefix that will be shown in front of messages that are broadcast, e.g. [Chat Games]
+# Note: A space at the end is not needed, and will appear double spaced in game if present.
 prefix = "[Chat Games]"
+
+# Message displayed when the chat game launches
+startingMessage = "'Whos that Pixelmon' will begin in 5 seconds. Have an empty main hand to participate"
+
+# Message displayed when the chat game is not answered correctly
+noAnswerMessage = "Nobody guessed correctly in time"
+
+# Message displayed when answer is revealed
+# Note: Pixelmon names will still remain in English. This message will be constructed in the contexts:
+# "[noAnswerMessage]. [revealAnswerMessage] <name of pixelmon>!" e.g. Nobody guessed correctly in time. It's Dewott!
+# "<player> [guessedMessage]. [revealAnswerMessage] <name of pixelmon>!" e.g. Biscuitss_ guessing correctly. It's Dewott!
+revealedAnswerMessage = "It's"
+
+# Message displayed when the chat game is guessed correctly
+# Usage:
+# "<player> [guessedMessage]. [revealAnswerMessage] <name of pixelmon>!" e.g. Biscuitss_ guessed correctly. It's Dewott!
+guessedMessage = "guessed correctly"
+
+# Message displayed when the winner receives an item reward
+# Usage:
+# <itemReceivedMessage> [item name] x[item amount] e.g. You have received ultra ball x2
+itemReceivedMessage = "You have received"
+
+# List of potential item rewards, a random item will be selected from the list if itemRewardsEnabled=true
+item=[
+    {
+        # Quantity of item being given
+        amount=2 
+        # The ItemID of the item being rewarded, enable tooltips in-game to see itemIDs when hovering over items
+        name="pixelmon:rare_candy"
+    },
+    {
+        amount=2
+        name="pixelmon:ultra_ball"
+    }
+]
+
+# Enables item rewards being given
+itemsEnabled=true
+
+# List of commands to be run by the server when a player wins the chat game (all commands will be executed)
+# Type <player> in the command string to insert the winning player in the command.
+# The command you enter here must be a valid command that is executable by the server.
+commands=[
+        "give <player> minecraft:diamond 1" #example command, will give the winning player a diamond
+        "give <player> minecraft:emerald 1"
+]
+
+# Enable/disable commands list (see above) being executed when a player wins
+commandsEnabled=false
+
+# Enable/disable answer being revealed if the sprite is not guessed correctly in time
+revealAnswer=false
+
+# Time interval between successive instances of the chat-game. A random time between these values will be used when counting
+# towards the next event launch. Make both values the same if you want the event to launch at the same time interval.
+time {
+    maximumTimeInterval=35
+    minimumTimeInterval=30
+}
+
+# Time interval in seconds for players to enter guesses for the chat game
+guessingTime=30
+
+# Prefix that will be shown in front of messages that are broadcast, e.g. [Chat Games]
+# Note: A space at the end is not needed, and will appear double spaced in game if present.
+prefix = "[Chat Games]"
+
+# Message displayed when the chat game launches
+startingMessage = "'Whos that Pixelmon' will begin in 5 seconds. Have an empty main hand to participate"
+
+# Message displayed when the chat game is not answered correctly
+noAnswerMessage = "Nobody guessed correctly in time"
+
+# Message displayed when answer is revealed
+# Note: Pixelmon names will still remain in English. This message will be constructed in the contexts:
+# "[noAnswerMessage]. [revealAnswerMessage] <name of pixelmon>!" e.g. Nobody guessed correctly in time. It's Dewott!
+# "<player> [guessedMessage]. [revealAnswerMessage] <name of pixelmon>!" e.g. Biscuitss_ guessing correctly. It's Dewott!
+revealedAnswerMessage = "It's"
+
+# Message displayed when the chat game is guessed correctly
+# Usage:
+# "<player> [guessedMessage]. [revealAnswerMessage] <name of pixelmon>!" e.g. Biscuitss_ guessed correctly. It's Dewott!
+guessedMessage = "guessed correctly"
+
+# Message displayed when the winner receives an item reward
+# Usage:
+# <itemReceivedMessage> [item name] x[item amount] e.g. You have received ultra ball x2
+itemReceivedMessage = "You have received"
 ```  
 #### Changing item rewards:  
 To change the possible item rewards, simply copy and paste the following block of text inbetween the square brackets, making sure there is a comma after the final curly brace if another block is to follow. The amount of blocks represent the amount of potential item rewards when the chat game is answered correctly.  
@@ -100,6 +190,10 @@ The time that the chat game launches will be randomised between these defined in
   
 #### Changing prefix:  
 The prefix node will define the message that is shown before all in-game chat messages that are sent by the plugin. Changing the contents of this string will change the prefix displayed on all messages.  
+  
+#### Changing broadcasted messages:  
+The messages that are broadcasted in the plugin can now be modified. Note that although you may be able to change the language of broadcasts this way, Pixelmon names will still need to be answered in English, and will still be displayed in English if the *revealAnswer* node is set to true;
+   
    
 #### Contact me  
 Please report any bugs with the plugin on the [Issue Tracker](https://github.com/Bisxsh/WhosThatPixelmon/issues).  
