@@ -142,7 +142,7 @@ public class ChatGameManager {
 
     public void endChatGame() throws IOException, InterruptedException {
         Sponge.getEventManager().unregisterListeners(chatListener);
-        mainClass.setTimeInterval();
+//        mainClass.setTimeInterval();
         mapMaker.deleteSprite();
     }
 }

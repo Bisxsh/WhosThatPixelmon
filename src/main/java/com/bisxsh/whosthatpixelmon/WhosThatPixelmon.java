@@ -82,7 +82,7 @@ public class WhosThatPixelmon {
         logger.info("WhosThatPixelmon has started");
         timeManager = new TimeManager();
         new CommandManager().setupCommands();
-        setTimeInterval();
+        //setTimeInterval();
     }
 
     @Listener
@@ -115,7 +115,7 @@ public class WhosThatPixelmon {
         return logger;
     }
 
-    public void setTimeInterval() throws IOException {
+    public void setTimeInterval() {
         timeManager.setChatGameTimer();
     }
 
