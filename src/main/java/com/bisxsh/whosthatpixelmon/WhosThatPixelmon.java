@@ -1,8 +1,6 @@
 package com.bisxsh.whosthatpixelmon;
 
-import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.bisxsh.whosthatpixelmon.managers.CommandManager;
-import com.bisxsh.whosthatpixelmon.managers.ConfigManager;
 import com.bisxsh.whosthatpixelmon.managers.TimeManager;
 import com.bisxsh.whosthatpixelmon.mapItem.MapHandler;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
@@ -32,26 +30,26 @@ import java.util.List;
 import java.util.Optional;
 
 @Mod(
-        modid = Whosthatpixelmon.MOD_ID,
-        name = Whosthatpixelmon.MOD_NAME,
-        version = Whosthatpixelmon.VERSION
+        modid = WhosThatPixelmon.MOD_ID,
+        name = WhosThatPixelmon.MOD_NAME,
+        version = WhosThatPixelmon.VERSION
 )
 
 @Plugin(
         id = "whosthatpixelmon",
         name = "whosthatpixelmon",
         description = "A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show",
-        version = "1.2",
+        version = "1.2.0",
         authors = "Bisxsh",
         dependencies = {@Dependency(id = "realmap"), @Dependency(id = "pixelmon")}
 )
 
-public class Whosthatpixelmon {
+public class WhosThatPixelmon {
 
     public static final String MOD_ID = "whosthatpixelmon";
     public static final String MOD_NAME = "WhosThatPixelmon";
     public static final String VERSION = "1.0-SNAPSHOT";
-    private static Whosthatpixelmon INSTANCE = null;
+    private static WhosThatPixelmon INSTANCE = null;
 
     @Inject
     @ConfigDir(sharedRoot = false)
@@ -68,14 +66,14 @@ public class Whosthatpixelmon {
     @Inject
     private Logger logger;
 
-    public Whosthatpixelmon(){}
+    public WhosThatPixelmon(){}
 
     @Listener
     public void onGameInit(GamePreInitializationEvent event) {
         INSTANCE = this;
     }
 
-    public static Whosthatpixelmon getInstance() {
+    public static WhosThatPixelmon getInstance() {
         return INSTANCE;
     }
 
@@ -83,9 +81,8 @@ public class Whosthatpixelmon {
     public void onServerStart(GameStartedServerEvent event) throws IOException {
         logger.info("WhosThatPixelmon has started");
         timeManager = new TimeManager();
-        new BroadcastManager(new ConfigManager().loadPrefix());
         new CommandManager().setupCommands();
-//        setTimeInterval();
+        setTimeInterval();
     }
 
     @Listener

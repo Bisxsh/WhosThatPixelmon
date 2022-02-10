@@ -1,6 +1,6 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
-import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
@@ -8,28 +8,20 @@ import org.spongepowered.api.item.ItemType;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.ItemStackSnapshot;
 import org.spongepowered.api.text.Text;
-import org.spongepowered.api.text.channel.MessageChannel;
-import org.spongepowered.api.text.format.TextColors;
-import org.spongepowered.api.text.format.TextStyles;
 
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Optional;
-import java.util.Random;
+import java.util.*;
 
 
 public class RewardManager {
 
-    private ArrayList<String> itemRewards;
-    private ArrayList<Integer> itemAmounts;
-
     public RewardManager() {
     }
 
-    public void giveReward(Player winner, ConfigManager configManager) throws IOException {
-        int index = pickRandomReward(configManager);
-        String item = itemRewards.get(index);
-        int amount = itemAmounts.get(index);
+    public void giveReward(Player winner) {
+        HashMap<String, Integer> rewards = ConfigManager.getInstance().getRewards();
+        List<String> keysAsArray = new ArrayList<String>(rewards.keySet());
+        String item = keysAsArray.get(new Random().nextInt(keysAsArray.size()));
+        int amount = rewards.get(item);
 
         try {
             Optional<ItemType> optionalItemType = Sponge.getRegistry().getType(ItemType.class, item);
@@ -39,23 +31,14 @@ public class RewardManager {
             itemStack.setQuantity(amount);
             winner.getInventory().offer(itemStack);
 
-            String rewardsString = new StringBuilder("You have received ")
+            String rewardsString = new StringBuilder(ConfigManager.getInstance().getItemReceivedMessage()+" ")
                     .append(itemStackSnapshot.getType().getTranslation().get())
-                    .append(" x").append(itemAmounts.get(index)).append("!").toString();
+                    .append(" x").append(amount).append("!").toString();
             Text reward = Text.builder(rewardsString).build();
-            BroadcastManager.getInstance().sendPlayerBroadcast(reward, winner);
+            BroadcastManager.sendPlayerBroadcast(reward, winner);
         } catch (Exception e) {
-            new Whosthatpixelmon().getLogger().warn("[WhosThatPixelmon] Unable to create one of the reward ItemStacks");
+            new WhosThatPixelmon().getLogger().warn("[Whos That Pixelmon] Unable to create one of the reward ItemStacks");
         }
-    }
-
-    private int pickRandomReward(ConfigManager configManager) throws IOException {
-        itemRewards = configManager.getItemRewards();
-        itemAmounts = configManager.getItemAmounts();
-
-        Random random = new Random();
-        int index = random.nextInt(itemRewards.size());
-        return index;
     }
 
     public String getItemName(ItemStack itemStack) {

@@ -1,7 +1,6 @@
 package com.bisxsh.whosthatpixelmon.mapItem;
 
-import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
-import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
+import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
 import com.github.ericliucn.realmap.images.ImageSaveTask;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
 import org.spongepowered.api.Sponge;
@@ -30,11 +29,11 @@ public class MapMaker {
     private String fileName;
     private String pokemonForm, pokemonName;
     private File chosenSprite;
-    private Whosthatpixelmon mainClass;
+    private WhosThatPixelmon mainClass;
 
 
     public MapMaker() throws IOException {
-        this.mainClass = Whosthatpixelmon.getInstance();
+        this.mainClass = WhosThatPixelmon.getInstance();
         this.generateMapsAndDetails();
     }
 
@@ -42,7 +41,7 @@ public class MapMaker {
         this.pokemonName = obtainPokemonName(fileName.substring(0, 3));
         this.pokemonForm = obtainPokemonForm();
         this.fileName = fileName;
-        copySpriteToFile(Whosthatpixelmon.getInstance().getSpriteAsset(fileName));
+        copySpriteToFile(WhosThatPixelmon.getInstance().getSpriteAsset(fileName));
         generateMaps();
     }
 

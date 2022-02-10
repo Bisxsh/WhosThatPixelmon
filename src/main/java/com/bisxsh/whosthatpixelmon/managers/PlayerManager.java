@@ -1,6 +1,6 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
-import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
 import com.bisxsh.whosthatpixelmon.listeners.SlotListener;
 import com.bisxsh.whosthatpixelmon.mapItem.MapHandler;
 import com.bisxsh.whosthatpixelmon.objects.ParticipatingPlayerInfo;
@@ -14,20 +14,21 @@ import org.spongepowered.api.text.Text;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
 public class PlayerManager {
-    private ItemStack hiddenMap, revealedMap;
-    private MapHandler showMap;
-    private ArrayList<ParticipatingPlayerInfo> participatingPlayerList;
-    private Whosthatpixelmon mainClass;
+    private final ItemStack hiddenMap, revealedMap;
+    private final MapHandler showMap;
+    private final ArrayList<ParticipatingPlayerInfo> participatingPlayerList;
+    private final WhosThatPixelmon mainClass;
 
     public PlayerManager (ItemStack hiddenMap, ItemStack revealedMap) {
         this.hiddenMap = hiddenMap;
         this.revealedMap = revealedMap;
         participatingPlayerList = new ArrayList<>();
         showMap = new MapHandler();
-        this.mainClass = Whosthatpixelmon.getInstance();
+        this.mainClass = WhosThatPixelmon.getInstance();
 
     }
 
@@ -35,28 +36,28 @@ public class PlayerManager {
         Collection<Player> onlinePlayers = Sponge.getServer().getOnlinePlayers();
 
         for (Player player : onlinePlayers) {
-            if (player.getItemInHand(HandTypes.MAIN_HAND).get().isEmpty()) {
+            Optional<ItemStack> optItem = player.getItemInHand(HandTypes.MAIN_HAND);
+            if (optItem.isPresent()) {
+                if (optItem.get().isEmpty()) {
+                    Inventory storedSlot = showMap.showHiddenMap(player, hiddenMap);
 
-                Inventory storedSlot = showMap.showHiddenMap(player, hiddenMap);
+                    SlotListener slotListener = new SlotListener(storedSlot, player, this);
+                    Sponge.getEventManager().registerListeners(mainClass, slotListener);
 
-                SlotListener slotListener = new SlotListener(storedSlot, player, this);
-                Sponge.getEventManager().registerListeners(mainClass, slotListener);
-
-                ParticipatingPlayerInfo participatingPlayerInfo = new ParticipatingPlayerInfo(player, storedSlot, slotListener);
-                participatingPlayerList.add(participatingPlayerInfo);
-            } else {
-                Text errorTxt = Text.builder("Failed to give map as your main hand was not empty.")
-                        .build();
-                BroadcastManager.getInstance().sendPlayerBroadcast(errorTxt, player);
+                    ParticipatingPlayerInfo participatingPlayerInfo = new ParticipatingPlayerInfo(player, storedSlot, slotListener);
+                    participatingPlayerList.add(participatingPlayerInfo);
+                } else {
+                    Text errorTxt = Text.builder("Failed to give map as your main hand was not empty.")
+                            .build();
+                    BroadcastManager.sendPlayerBroadcast(errorTxt, player);
+                }
             }
         }
     }
 
     public void sendPlayersRevealedMap() {
-        int listSize = participatingPlayerList.size();
-        for (int i = 0; i < listSize; i++) {
+        for (ParticipatingPlayerInfo playerInfo : participatingPlayerList) {
 
-            ParticipatingPlayerInfo playerInfo = participatingPlayerList.get(i);
             Inventory storedSlot = playerInfo.getStoredSlot();
             SlotListener listener = playerInfo.getSlotListener();
 
@@ -73,7 +74,7 @@ public class PlayerManager {
                         Sponge.getEventManager().unregisterListeners(listener);
                         removeListeners();
                         showMap.removeMap(storedSlot, revealedMap, playerInfo.getPlayer());
-                    }).submit(Whosthatpixelmon.getInstance());
+                    }).submit(WhosThatPixelmon.getInstance());
         }
     }
 
@@ -83,9 +84,7 @@ public class PlayerManager {
     }
 
     public void removeListeners() {
-        int listSize = participatingPlayerList.size();
-        for (int i = 0; i < listSize; i++) {
-            ParticipatingPlayerInfo playerInfo = participatingPlayerList.get(i);
+        for (ParticipatingPlayerInfo playerInfo : participatingPlayerList) {
             SlotListener listener = playerInfo.getSlotListener();
             Sponge.getEventManager().unregisterListeners(listener);
         }

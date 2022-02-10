@@ -12,8 +12,8 @@ import java.util.Optional;
 
 public class ChatListener {
 
-    private ArrayList<String> answers;
-    private ChatGameManager chatGameManager;
+    private final ArrayList<String> answers;
+    private final ChatGameManager chatGameManager;
 
 
     public ChatListener(String answer, String form, ChatGameManager chatGameManager) {
@@ -35,13 +35,12 @@ public class ChatListener {
 
 
     @Listener
-    public void onChatMessageRecieved(MessageChannelEvent.Chat event) throws IOException, InterruptedException {
+    public void onChatMessageReceived(MessageChannelEvent.Chat event) throws IOException, InterruptedException {
         Optional<Player> optionalPlayer = event.getCause().first(Player.class);
         if (optionalPlayer.isPresent()) {
             String messageSent = event.getRawMessage().toPlain();
-            int answersSize = answers.size();
-            for (int i = 0; i < answersSize; i++) {
-                if (messageSent.equalsIgnoreCase(answers.get(i))) {
+            for (String answer : answers) {
+                if (messageSent.equalsIgnoreCase(answer)) {
                     Player winner = optionalPlayer.get();
                     chatGameManager.processWinner(winner);
                 }

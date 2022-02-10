@@ -15,17 +15,12 @@ import java.util.Optional;
 
 public class MapHandler {
 
-    private Inventory playerInv;
-
-    public MapHandler() {
-    }
-
     public Inventory showHiddenMap(Player player, ItemStack hiddenMap) {
         Inventory storedSlot = null;
         player.setItemInHand(HandTypes.MAIN_HAND, hiddenMap);
 
 
-        playerInv = player.getInventory();
+        Inventory playerInv = player.getInventory();
         Inventory filteredInv = playerInv.query(QueryOperationTypes.ITEM_TYPE.of(ItemTypes.FILLED_MAP));
 
         //Compare lore and get slot in player inv
@@ -33,8 +28,15 @@ public class MapHandler {
         if (optMapLore.isPresent()){
             List<Text> mapLore = optMapLore.get();
             for(Inventory slot : filteredInv.slots()) {
-                ItemStack stack = slot.peek().get();
-                List<Text> lore = stack.get(Keys.ITEM_LORE).get();
+
+                Optional<ItemStack> optStack = slot.peek();
+                if (!optStack.isPresent()) continue;
+                ItemStack stack = optStack.get();
+
+                Optional<List<Text>> optLore = stack.get(Keys.ITEM_LORE);
+                if (!optLore.isPresent()) continue;
+                List<Text> lore = optLore.get();
+
                 if (lore.equals(mapLore)) {
                     storedSlot = slot;
                 }

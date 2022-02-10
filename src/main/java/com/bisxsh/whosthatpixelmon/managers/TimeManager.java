@@ -1,6 +1,6 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
-import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
 import org.spongepowered.api.scheduler.Task;
 
 import java.io.IOException;
@@ -10,8 +10,6 @@ import java.util.concurrent.TimeUnit;
 
 public class TimeManager {
 
-    private Whosthatpixelmon mainClass;
-
     private static TimeManager INSTANCE = null;
 
     public static TimeManager getInstance() {
@@ -19,13 +17,12 @@ public class TimeManager {
     }
 
     public TimeManager() {
-        this.mainClass = Whosthatpixelmon.getInstance();
         INSTANCE = this;
     }
 
-    private int getTimeInterval() throws IOException {
+    private int getTimeInterval() {
         ConfigManager configManager = new ConfigManager();
-        configManager.loadTimeIntervals(mainClass);
+        configManager.loadTimeIntervals();
         int minTime = configManager.getMinTime()*60;
         int maxTime = configManager.getMaxTime()*60;
 
@@ -34,11 +31,10 @@ public class TimeManager {
         }
 
         Random random = new Random();
-        int timeInterval = random.nextInt(maxTime-minTime)+minTime;
-        return timeInterval;
+        return random.nextInt(maxTime-minTime)+minTime;
     }
 
-    public void setChatGameTimer() throws IOException {
+    public void setChatGameTimer() {
         int timeInterval = getTimeInterval();
 
         Task.builder().delay(timeInterval, TimeUnit.SECONDS)
@@ -51,9 +47,7 @@ public class TimeManager {
                                 e.printStackTrace();
                             }
                         }
-                ).submit(mainClass);
-
-        //
+                ).submit(WhosThatPixelmon.getInstance());
     }
 
 

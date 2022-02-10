@@ -1,14 +1,8 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
-import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
 import com.bisxsh.whosthatpixelmon.listeners.ChatListener;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
-import com.pixelmonmod.pixelmon.Pixelmon;
-import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
-import com.pixelmonmod.pixelmon.client.gui.GuiResources;
-import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
-import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import net.minecraft.util.ResourceLocation;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -22,24 +16,25 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 
+import static com.bisxsh.whosthatpixelmon.managers.BroadcastManager.getText;
+
 public class ChatGameManager {
 
     private Player winner;
-    private ItemStack hiddenMap, revealedMap;
-    private String pokemonName, pokemonForm;
+    private final String pokemonName, pokemonForm;
 
-    private Whosthatpixelmon mainClass;
+    private final WhosThatPixelmon mainClass;
     private ChatListener chatListener;
-    private PlayerManager playerManager;
-    private MapMaker mapMaker;
+    private final PlayerManager playerManager;
+    private final MapMaker mapMaker;
 
 
     public ChatGameManager() throws IOException, URISyntaxException {
-        this.mainClass = Whosthatpixelmon.getInstance();
+        this.mainClass = WhosThatPixelmon.getInstance();
         mapMaker = new MapMaker();
 
-        this.hiddenMap = mapMaker.getHiddenMap();
-        this.revealedMap = mapMaker.getRevealedMap();
+        ItemStack hiddenMap = mapMaker.getHiddenMap();
+        ItemStack revealedMap = mapMaker.getRevealedMap();
         this.pokemonName = mapMaker.getPokemonName();
         this.pokemonForm = mapMaker.getPokemonForm();
 
@@ -48,47 +43,37 @@ public class ChatGameManager {
     }
 
     public void startChatGame() throws IOException {
-
         //Starting broadcast
-        Text txt = Text.builder("'Whos that Pixelmon' will begin in 5 seconds." +
-                        " Have an empty main hand to participate").build();
-        BroadcastManager.getInstance().sendBroadcast(txt);
+        Text txt = Text.builder(ConfigManager.getInstance().getStartingMessage()).build();
+        BroadcastManager.sendBroadcast(txt);
         //
 
         //Give participating players the hidden map
-        ChatGameManager chatGameManager = this;
         Task.builder()
                 .delay(5, TimeUnit.SECONDS)
                 .execute(() -> {
                     playerManager.sendPlayersHiddenMap();
-                    chatListener = new ChatListener(pokemonName, pokemonForm, chatGameManager);
+                    chatListener = new ChatListener(pokemonName, pokemonForm, this);
                     Sponge.getEventManager().registerListeners(mainClass, chatListener);
                 }).submit(mainClass);
         //
 
-        int guessingTime = new ConfigManager().loadGuessingTime();
+        int guessingTime = ConfigManager.getInstance().getGuessingTime();
         Task.builder()
                 .delay(guessingTime+5, TimeUnit.SECONDS)
                 .execute(() -> {
                     if (winner == null) {
-                        try {
-                            if (new ConfigManager().loadRevealAnswer()) {
-                                String answerString = new StringBuilder("It's ").append(getDisplayedAnswer()).toString();
-                                Text answerText = Text.builder("Nobody guessed correctly in time. ")
-                                        .append(Text.builder(answerString)
-                                                .color(TextColors.RED).style(TextStyles.RESET).build())
-                                        .build();
-                                BroadcastManager.getInstance().sendBroadcast(answerText);
-                                playerManager.sendPlayersRevealedMap();
-                            } else {
-                                defaultNoGuess();
-                            }
-
-                        } catch (IOException e) {
-                            Whosthatpixelmon.getInstance().getLogger()
-                                    .warn("[Whos that Pixelmon] revealAnswer config was not read correctly, defaulting to false");
+                        if (ConfigManager.getInstance().shouldRevealAnswer()) {
+                            String answerString = new StringBuilder(ConfigManager.getInstance().getRevealedAnswerMessage())
+                                    .append(getDisplayedAnswer()).toString();
+                            Text answerText = Text.builder(ConfigManager.getInstance().getNoAnswerMessage()+"! ")
+                                    .append(Text.builder(answerString)
+                                            .color(TextColors.RED).style(TextStyles.RESET).build())
+                                    .build();
+                            BroadcastManager.sendBroadcastUnformatted(answerText);
+                            playerManager.sendPlayersRevealedMap();
+                        } else {
                             defaultNoGuess();
-                            e.printStackTrace();
                         }
 
                         try {
@@ -102,7 +87,7 @@ public class ChatGameManager {
     }
 
     public void defaultNoGuess() {
-        BroadcastManager.getInstance().sendBroadcast(Text.of("Nobody guessed correctly in time"));
+        BroadcastManager.sendBroadcast(getText(ConfigManager.getInstance().getNoAnswerMessage()));
         playerManager.sendPlayersRevealedMap();
     }
 
@@ -111,8 +96,12 @@ public class ChatGameManager {
         playerManager.sendPlayersRevealedMap();
 
         //Broadcast winner
-        Text txt = Text.builder(winner.getName()+" guessed correctly. It's "+ getDisplayedAnswer()).build();
-        BroadcastManager.getInstance().sendBroadcast(txt);
+        Text txt = Text.builder(winner.getName())
+                .append(getText(ConfigManager.getInstance().getGuessedMessage()))
+                .append(getText(ConfigManager.getInstance().getRevealedAnswerMessage()))
+                .append(getText(getDisplayedAnswer()))
+                .build();
+        BroadcastManager.sendBroadcast(txt);
         //
 
         //Give player reward
@@ -122,13 +111,12 @@ public class ChatGameManager {
         endChatGame();
     }
 
-    private void giveReward(Player winner) throws IOException {
-        ConfigManager configManager = new ConfigManager();
-        if (configManager.loadRewards()) {
-            new RewardManager().giveReward(winner, configManager);
+    private void giveReward(Player winner) {
+        if (ConfigManager.getInstance().areRewardsEnabled()) {
+            new RewardManager().giveReward(winner);
         }
-        if (configManager.loadCommands()) {
-            ArrayList<String> commandsList = configManager.getCommandsList();
+        if (ConfigManager.getInstance().areCommandsEnabled()) {
+            ArrayList<String> commandsList = ConfigManager.getInstance().getCommandsList();
             for (String command : commandsList) {
                 if (command.contains("<player>")) {
                     command = command.replace("<player>", winner.getName());
@@ -154,8 +142,7 @@ public class ChatGameManager {
 
     public void endChatGame() throws IOException, InterruptedException {
         Sponge.getEventManager().unregisterListeners(chatListener);
-//        mainClass.setTimeInterval();
+        mainClass.setTimeInterval();
         mapMaker.deleteSprite();
     }
-
 }

@@ -1,157 +1,331 @@
 package com.bisxsh.whosthatpixelmon.managers;
 
-import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.WhosThatPixelmon;
 import ninja.leaping.configurate.ConfigurationNode;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
 import ninja.leaping.configurate.hocon.HoconConfigurationLoader;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.spongepowered.api.asset.Asset;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 public class ConfigManager {
 
-    private ArrayList<String> itemRewards, commandsList;
-    private ArrayList<Integer> itemAmounts;
-    private int minTime, maxTime;
-    private ConfigurationLoader<CommentedConfigurationNode> loader;
+    private enum ConfigOptions{
+        SETUP,
+        REWARDS,
+        COMMANDS,
+        REVEAL_ANSWER,
+        TIME_INTERVALS,
+        GUESSING_TIME,
 
-    public ConfigManager() throws IOException {
-        initialSetup();
-        itemRewards = new ArrayList<>();
-        itemAmounts = new ArrayList<>();
+        PREFIX,
+        STARTING_MESSAGE,
+        REVEALED_ANSWER_MESSAGE,
+        NO_ANSWER_MESSAGE,
+        GUESSED_MESSAGE,
+        ITEM_RECEIVED_MESSAGE
+    }
+
+    private static ConfigManager instance;
+    private final HashSet<ConfigOptions> loadedOptions = new HashSet<>();
+
+    private boolean rewardsEnabled;
+    private final HashMap<String, Integer> rewards = new HashMap<>();
+    private boolean commandsEnabled;
+    private ArrayList<String> commandsList;
+    private boolean revealAnswer;
+    private int minTime, maxTime;
+    private int guessingTime;
+
+    private String prefix;
+    private String startingMessage;
+    private String noAnswerMessage;
+    private String revealedAnswerMessage;
+    private String guessedMessage;
+    private String itemReceivedMessage;
+
+    public static ConfigManager getInstance() {
+        if (instance != null) return instance;
+        instance = new ConfigManager();
+        return instance;
     }
 
     private ConfigurationNode loadRootNode() throws IOException {
         File configFile = new File("config/whosthatpixelmon/whosthatpixelmon.conf");
-        loader = HoconConfigurationLoader.builder()
-                .setFile(configFile).build();
-        ConfigurationNode rootNode = loader.load();
-        return rootNode;
+        return HoconConfigurationLoader.builder()
+                .setFile(configFile)
+                .build()
+                .load();
     }
 
-    public Boolean loadRewards() throws IOException {
-        ConfigurationNode rootNode = loadRootNode();
+    private void initialSetup() {
+        if (!fileExists()) {
+            Asset defaultConfigAsset = WhosThatPixelmon.getInstance().getDefaultConfigAsset();
+            try {
+                defaultConfigAsset.copyToDirectory(WhosThatPixelmon.getInstance().getConfigPath());
+            } catch (IOException e) {
+                WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to create default config file");
+            }
+        }
+        loadedOptions.add(ConfigOptions.SETUP);
+    }
+
+    private Boolean fileExists() {
+        File configFile = new File("config/whosthatpixelmon/whosthatpixelmon.conf");
+        return configFile.exists();
+    }
+
+    private void checkSetup() {
+        if (!loadedOptions.contains(ConfigOptions.SETUP)) {
+            initialSetup();
+        }
+    }
+
+    public void loadRewards() {
+        checkSetup();
 
         try {
-            Boolean rewardsEnabled = rootNode.getNode("itemsEnabled").getBoolean();
-            if (!rewardsEnabled) {
-                return false;
+            ConfigurationNode rootNode = loadRootNode();
+            rewardsEnabled = rootNode.getNode("itemsEnabled").getBoolean();
+            if (!rewardsEnabled) return;
+
+            List<? extends ConfigurationNode> list = rootNode.getNode("item").getChildrenList();
+            for (ConfigurationNode node : list) {
+                rewards.put(node.getNode("name").getString(), node.getNode("amount").getInt());
             }
-        } catch (Exception e) {
-            Whosthatpixelmon.getInstance().getLogger()
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger()
                     .warn("[Whos that Pixelmon] itemsEnabled was unable to be read, defaulting to true");
         }
-
-        List<? extends ConfigurationNode> list = rootNode.getNode("item").getChildrenList();
-        int listSize = list.size();
-        for (int i = 0; i < listSize; i++) {
-            ConfigurationNode node = list.get(i);
-            itemRewards.add(node.getNode("name").getString());
-            itemAmounts.add(node.getNode("amount").getInt());
-        }
-        return true;
     }
 
-    public Boolean loadCommands() throws IOException {
-        ConfigurationNode rootNode = loadRootNode();
-        Boolean commandsEnabled = rootNode.getNode("commandsEnabled").getBoolean();
+    public void loadCommands() {
+        checkSetup();
 
-        if (!commandsEnabled) {
-           return false;
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            commandsEnabled = rootNode.getNode("commandsEnabled").getBoolean();
+            if (!commandsEnabled) return;
+            commandsList = new ArrayList<>();
+            List<? extends ConfigurationNode> list = rootNode.getNode("commands").getChildrenList();
+            for (ConfigurationNode node : list) {
+                commandsList.add(node.getString());
+            }
+        } catch (IOException e) {
+            commandsEnabled = false;
+            commandsList = null;
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read one or more of the command nodes from config: 'commandsEnabled', 'commands'. The default value (commands disabled) will be used.");
         }
-
-        commandsList = new ArrayList<>();
-        List<? extends ConfigurationNode> list = rootNode.getNode("commands").getChildrenList();
-        int listSize = list.size();
-        for (int i = 0; i < listSize; i++) {
-            ConfigurationNode node = list.get(i);
-            commandsList.add(node.getString());
-        }
-        return true;
     }
 
-    public Boolean loadRevealAnswer() throws IOException {
-        ConfigurationNode rootNode = loadRootNode();
-        return rootNode.getNode("revealAnswer").getBoolean();
+    public void loadRevealAnswer() {
+        checkSetup();
+
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            revealAnswer = rootNode.getNode("revealAnswer").getBoolean();
+        } catch (IOException e) {
+            revealAnswer = false;
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read the node 'revealAnswer' from config, the default value (false) will be used.");
+        }
+        loadedOptions.add(ConfigOptions.REVEAL_ANSWER);
+
     }
 
-    public void loadTimeIntervals(Whosthatpixelmon mainClass) {
+    public void loadTimeIntervals() {
+        checkSetup();
+
         try {
             ConfigurationNode node = loadRootNode().getNode("time");
             minTime = node.getNode("minimumTimeInterval").getInt();
             maxTime = node.getNode("maximumTimeInterval").getInt();
-        } catch (Exception e) {
-            mainClass.getLogger().warn("[Whos that Pixelmon] Unable to read time intervals from config, the default values will be used.");
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read time intervals from config, the default values will be used.");
             minTime = 30;
             maxTime = 35;
         }
-
+        loadedOptions.add(ConfigOptions.TIME_INTERVALS);
     }
 
-    public int loadGuessingTime() throws IOException {
-        int guessingTime;
-        ConfigurationNode rootnode = loadRootNode();
+    public void loadGuessingTime() {
+        checkSetup();
+
         try {
-            guessingTime = rootnode.getNode("guessingTime").getInt();
-        } catch (Exception e) {
-            Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read guessingTime from config, default value was used");
+            ConfigurationNode rootNode = loadRootNode();
+            guessingTime = rootNode.getNode("guessingTime").getInt();
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read guessingTime from config, default value was used");
             guessingTime = 30;
         }
-        return guessingTime;
+        loadedOptions.add(ConfigOptions.GUESSING_TIME);
     }
 
-    public String loadPrefix() throws IOException {
-        String prefix;
-        ConfigurationNode rootnode = loadRootNode();
+    public void loadPrefix() {
+        checkSetup();
+
         try {
-            prefix = rootnode.getNode("prefix").getString();
-        } catch (Exception e) {
-            Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read Prefix from config, default value was used");
+            ConfigurationNode rootNode = loadRootNode();
+            prefix = rootNode.getNode("prefix").getString();
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read Prefix from config, default value was used");
             prefix = "[Chat Games]";
         }
-        return prefix;
+        loadedOptions.add(ConfigOptions.PREFIX);
     }
 
-    private void initialSetup() throws IOException {
-        if (!fileExists()) {
-            Asset defaultConfigAsset = Whosthatpixelmon.getInstance().getDefaultConfigAsset();
-            try {
-                defaultConfigAsset.copyToDirectory(Whosthatpixelmon.getInstance().getConfigPath());
-            } catch (IOException e) {
-                Whosthatpixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to create default config file");
-            }
+    public void loadStartingMessage() {
+        checkSetup();
+
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            startingMessage = rootNode.getNode("startingMessage").getString();
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read startingMessage from config, default value was used");
+            startingMessage = "'Whos that Pixelmon' will begin in 5 seconds. " +
+                    "Have an empty main hand to participate";
         }
+        loadedOptions.add(ConfigOptions.STARTING_MESSAGE);
     }
 
-    private Boolean fileExists() throws IOException {
-        File configFile = new File("config/whosthatpixelmon/whosthatpixelmon.conf");
-        if (configFile.exists()) {
-            return true;
+    public void loadNoAnswerMessage() {
+        checkSetup();
+
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            noAnswerMessage = rootNode.getNode("noAnswerMessage").getString();
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read noAnswerMessage from config, default value was used");
+            noAnswerMessage = "Nobody guessed correctly in time";
         }
-        return false;
+        loadedOptions.add(ConfigOptions.NO_ANSWER_MESSAGE);
     }
 
-    public ArrayList<String> getItemRewards() {
-        return itemRewards;
+    public void loadRevealedAnswerMessage() {
+        checkSetup();
+
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            revealedAnswerMessage = rootNode.getNode("revealedAnswerMessage").getString()+" ";
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read revealedAnswerMessage from config, default value was used");
+            revealedAnswerMessage = "It's ";
+        }
+        loadedOptions.add(ConfigOptions.REVEALED_ANSWER_MESSAGE);
     }
 
-    public ArrayList<Integer> getItemAmounts() {
-        return itemAmounts;
+    public void loadGuessedMessage() {
+        checkSetup();
+
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            guessedMessage = rootNode.getNode("guessedMessage").getString()+". ";
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read guessedMessage from config, default value was used");
+            guessedMessage = "guessed correctly. ";
+        }
+        loadedOptions.add(ConfigOptions.GUESSED_MESSAGE);
+    }
+
+    public void loadItemReceivedMessage() {
+        checkSetup();
+
+        try {
+            ConfigurationNode rootNode = loadRootNode();
+            itemReceivedMessage = rootNode.getNode("itemReceivedMessage").getString();
+        } catch (IOException e) {
+            WhosThatPixelmon.getInstance().getLogger().warn("[Whos that Pixelmon] Unable to read itemReceivedMessage from config, default value was used");
+            itemReceivedMessage = "You have received";
+        }
+        loadedOptions.add(ConfigOptions.ITEM_RECEIVED_MESSAGE);
+    }
+
+
+
+    public boolean areRewardsEnabled() {
+        if (loadedOptions.contains(ConfigOptions.REWARDS)) return rewardsEnabled;
+        loadRewards();
+        return rewardsEnabled;
+    }
+
+    public HashMap<String, Integer> getRewards() {
+        if (loadedOptions.contains(ConfigOptions.REWARDS)) return rewards;
+        loadRewards();
+        return rewards;
+    }
+
+    public boolean areCommandsEnabled() {
+        if (loadedOptions.contains(ConfigOptions.COMMANDS)) return commandsEnabled;
+        loadCommands();
+        return commandsEnabled;
     }
 
     public ArrayList<String> getCommandsList() {
+        if (loadedOptions.contains(ConfigOptions.COMMANDS)) return commandsList;
+        loadCommands();
         return commandsList;
     }
 
+    public boolean shouldRevealAnswer() {
+        if (loadedOptions.contains(ConfigOptions.REVEAL_ANSWER)) return revealAnswer;
+        loadRevealAnswer();
+        return revealAnswer;
+    }
+
     public int getMinTime() {
+        if (loadedOptions.contains(ConfigOptions.TIME_INTERVALS)) return minTime;
+        loadTimeIntervals();
         return minTime;
     }
 
     public int getMaxTime() {
+        if (loadedOptions.contains(ConfigOptions.TIME_INTERVALS)) return maxTime;
+        loadTimeIntervals();
         return maxTime;
+    }
+
+    public int getGuessingTime() {
+        if (loadedOptions.contains(ConfigOptions.GUESSING_TIME)) return guessingTime;
+        loadGuessingTime();
+        return guessingTime;
+    }
+
+    public String getPrefix() {
+        if (loadedOptions.contains(ConfigOptions.PREFIX)) return prefix+" ";
+        loadPrefix();
+        return prefix+" ";
+    }
+
+    public String getStartingMessage() {
+        if (loadedOptions.contains(ConfigOptions.STARTING_MESSAGE)) return startingMessage;
+        loadStartingMessage();
+        return startingMessage;
+    }
+
+    public String getNoAnswerMessage() {
+        if (loadedOptions.contains(ConfigOptions.NO_ANSWER_MESSAGE)) return noAnswerMessage;
+        loadNoAnswerMessage();
+        return noAnswerMessage;
+    }
+
+    public String getRevealedAnswerMessage() {
+        if (loadedOptions.contains(ConfigOptions.REVEALED_ANSWER_MESSAGE)) return revealedAnswerMessage;
+        loadRevealedAnswerMessage();
+        return revealedAnswerMessage;
+    }
+
+    public String getGuessedMessage() {
+        if (loadedOptions.contains(ConfigOptions.GUESSED_MESSAGE)) return guessedMessage;
+        loadGuessedMessage();
+        return guessedMessage;
+    }
+
+    public String getItemReceivedMessage() {
+        if (loadedOptions.contains(ConfigOptions.ITEM_RECEIVED_MESSAGE)) return itemReceivedMessage;
+        loadItemReceivedMessage();
+        return itemReceivedMessage;
     }
 }

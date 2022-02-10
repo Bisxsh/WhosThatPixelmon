@@ -1,6 +1,5 @@
 package com.bisxsh.whosthatpixelmon.listeners;
 
-import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.bisxsh.whosthatpixelmon.managers.PlayerManager;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
 import org.spongepowered.api.data.key.Keys;
@@ -12,7 +11,6 @@ import org.spongepowered.api.event.Listener;
 import org.spongepowered.api.event.entity.InteractEntityEvent;
 import org.spongepowered.api.event.item.inventory.*;
 import org.spongepowered.api.event.network.ClientConnectionEvent;
-import org.spongepowered.api.item.ItemTypes;
 import org.spongepowered.api.item.inventory.Inventory;
 import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.item.inventory.Slot;
@@ -24,10 +22,10 @@ import java.util.Optional;
 
 public class SlotListener {
 
-    private Inventory storedSlot;
+    private final Inventory storedSlot;
     private ItemStack mapItem;
-    private Player player;
-    private PlayerManager playerManager;
+    private final Player player;
+    private final PlayerManager playerManager;
 
     public SlotListener (Inventory storedSlot, Player player, PlayerManager playerManager) {
         this.storedSlot = storedSlot;
@@ -112,7 +110,7 @@ public class SlotListener {
 
     //Prevents user from logging off with items in their inventory
     @Listener
-    public void onPlayerDiscconect(ClientConnectionEvent.Disconnect event) {
+    public void onPlayerDisconnect(ClientConnectionEvent.Disconnect event) {
         Player playerFromEvent = event.getTargetEntity();
         if (playerFromEvent.equals(player)) {
             playerManager.removeDisconnectedMap(storedSlot, player);
