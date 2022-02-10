@@ -3,6 +3,12 @@ package com.bisxsh.whosthatpixelmon.managers;
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
 import com.bisxsh.whosthatpixelmon.listeners.ChatListener;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
+import com.pixelmonmod.pixelmon.Pixelmon;
+import com.pixelmonmod.pixelmon.api.pokemon.Pokemon;
+import com.pixelmonmod.pixelmon.client.gui.GuiResources;
+import com.pixelmonmod.pixelmon.entities.pixelmon.stats.Gender;
+import com.pixelmonmod.pixelmon.enums.EnumSpecies;
+import net.minecraft.util.ResourceLocation;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.item.inventory.ItemStack;
@@ -14,8 +20,6 @@ import org.spongepowered.api.text.format.TextStyles;
 import java.io.IOException;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
 
 public class ChatGameManager {
@@ -46,11 +50,9 @@ public class ChatGameManager {
     public void startChatGame() throws IOException {
 
         //Starting broadcast
-        Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                .append(Text.builder("'Whos that Pixelmon' will begin in 5 seconds. Have an empty main hand to participate")
-                        .color(TextColors.GREEN).style(TextStyles.RESET).build())
-                .build();
-        Sponge.getServer().getBroadcastChannel().send(txt);
+        Text txt = Text.builder("'Whos that Pixelmon' will begin in 5 seconds." +
+                        " Have an empty main hand to participate").build();
+        BroadcastManager.getInstance().sendBroadcast(txt);
         //
 
         //Give participating players the hidden map
@@ -72,13 +74,11 @@ public class ChatGameManager {
                         try {
                             if (new ConfigManager().loadRevealAnswer()) {
                                 String answerString = new StringBuilder("It's ").append(getDisplayedAnswer()).toString();
-                                Text text1 = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                                        .append(Text.builder("Nobody guessed correctly in time. ")
-                                                .color(TextColors.RED).style(TextStyles.BOLD).build())
+                                Text answerText = Text.builder("Nobody guessed correctly in time. ")
                                         .append(Text.builder(answerString)
                                                 .color(TextColors.RED).style(TextStyles.RESET).build())
                                         .build();
-                                Sponge.getServer().getBroadcastChannel().send(text1);
+                                BroadcastManager.getInstance().sendBroadcast(answerText);
                                 playerManager.sendPlayersRevealedMap();
                             } else {
                                 defaultNoGuess();
@@ -102,11 +102,7 @@ public class ChatGameManager {
     }
 
     public void defaultNoGuess() {
-        Text text = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                .append(Text.builder("Nobody guessed correctly in time")
-                        .color(TextColors.RED).style(TextStyles.BOLD).build())
-                .build();
-        Sponge.getServer().getBroadcastChannel().send(text);
+        BroadcastManager.getInstance().sendBroadcast(Text.of("Nobody guessed correctly in time"));
         playerManager.sendPlayersRevealedMap();
     }
 
@@ -115,11 +111,8 @@ public class ChatGameManager {
         playerManager.sendPlayersRevealedMap();
 
         //Broadcast winner
-        Text txt = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                .append(Text.builder(winner.getName()+" guessed correctly. It's "+ getDisplayedAnswer())
-                        .color(TextColors.GREEN).style(TextStyles.RESET).build())
-                .build();
-        Sponge.getServer().getBroadcastChannel().send(txt);
+        Text txt = Text.builder(winner.getName()+" guessed correctly. It's "+ getDisplayedAnswer()).build();
+        BroadcastManager.getInstance().sendBroadcast(txt);
         //
 
         //Give player reward
@@ -131,10 +124,10 @@ public class ChatGameManager {
 
     private void giveReward(Player winner) throws IOException {
         ConfigManager configManager = new ConfigManager();
-        if (configManager.loadRewards() == true) {
+        if (configManager.loadRewards()) {
             new RewardManager().giveReward(winner, configManager);
         }
-        if (configManager.loadCommands() == true) {
+        if (configManager.loadCommands()) {
             ArrayList<String> commandsList = configManager.getCommandsList();
             for (String command : commandsList) {
                 if (command.contains("<player>")) {
@@ -148,7 +141,11 @@ public class ChatGameManager {
     private String getDisplayedAnswer() {
         String answer;
         if (pokemonForm != null) {
-            answer = new StringBuilder(pokemonName).append(" ("+pokemonForm+")").toString();
+            answer = new StringBuilder(pokemonName)
+                    .append(" (")
+                    .append(pokemonForm)
+                    .append(")")
+                    .toString();
         } else {
             answer = pokemonName;
         }
@@ -157,7 +154,7 @@ public class ChatGameManager {
 
     public void endChatGame() throws IOException, InterruptedException {
         Sponge.getEventManager().unregisterListeners(chatListener);
-        mainClass.setTimeInterval();
+//        mainClass.setTimeInterval();
         mapMaker.deleteSprite();
     }
 

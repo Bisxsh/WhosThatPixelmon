@@ -1,20 +1,17 @@
 package com.bisxsh.whosthatpixelmon;
 
+import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.bisxsh.whosthatpixelmon.managers.CommandManager;
+import com.bisxsh.whosthatpixelmon.managers.ConfigManager;
 import com.bisxsh.whosthatpixelmon.managers.TimeManager;
 import com.bisxsh.whosthatpixelmon.mapItem.MapHandler;
 import com.bisxsh.whosthatpixelmon.mapItem.MapMaker;
 import com.google.inject.Inject;
-import net.minecraft.client.Minecraft;
-import net.minecraft.client.resources.I18n;
 import net.minecraftforge.fml.common.Mod;
-import ninja.leaping.configurate.commented.CommentedConfigurationNode;
-import ninja.leaping.configurate.loader.ConfigurationLoader;
 import org.slf4j.Logger;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.config.ConfigDir;
-import org.spongepowered.api.config.DefaultConfig;
 import org.spongepowered.api.data.key.Keys;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.event.Listener;
@@ -44,7 +41,7 @@ import java.util.Optional;
         id = "whosthatpixelmon",
         name = "whosthatpixelmon",
         description = "A ChatGame plugin for pixelmon to mimic the 'Whos that Pixelmon' intervals from the show",
-        version = "1.1.0",
+        version = "1.2",
         authors = "Bisxsh",
         dependencies = {@Dependency(id = "realmap"), @Dependency(id = "pixelmon")}
 )
@@ -85,8 +82,10 @@ public class Whosthatpixelmon {
     @Listener
     public void onServerStart(GameStartedServerEvent event) throws IOException {
         logger.info("WhosThatPixelmon has started");
-        new CommandManager().setupCommand();
-        setTimeInterval();
+        timeManager = new TimeManager();
+        new BroadcastManager(new ConfigManager().loadPrefix());
+        new CommandManager().setupCommands();
+//        setTimeInterval();
     }
 
     @Listener
@@ -96,8 +95,7 @@ public class Whosthatpixelmon {
 
     @Listener
     public void onPlayerJoined(ClientConnectionEvent.Join event) {
-        //Check if player has map and remove to fix Players retaining map
-        //if server stopped during Chat-Game runtime
+        //Check if player has map and remove to fix Players retaining map if server stopped during Chat-Game runtime
         Player player = event.getTargetEntity();
         Iterable<Inventory> playerInv = player.getInventory().slots();
         List<Text> lore = MapMaker.getLore();
@@ -108,7 +106,7 @@ public class Whosthatpixelmon {
                 Optional<List<Text>> itemLore = item.get(Keys.ITEM_LORE);
                 if (itemLore.isPresent()) {
                     if (itemLore.get().equals(lore)) {
-                        mapHandler.removeMap(slot);
+                        mapHandler.removeMap(slot, item, player);
                     }
                 }
             }
@@ -121,7 +119,6 @@ public class Whosthatpixelmon {
     }
 
     public void setTimeInterval() throws IOException {
-        timeManager = new TimeManager();
         timeManager.setChatGameTimer();
     }
 

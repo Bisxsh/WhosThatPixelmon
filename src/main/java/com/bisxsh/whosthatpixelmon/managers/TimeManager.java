@@ -12,8 +12,15 @@ public class TimeManager {
 
     private Whosthatpixelmon mainClass;
 
+    private static TimeManager INSTANCE = null;
+
+    public static TimeManager getInstance() {
+        return INSTANCE;
+    }
+
     public TimeManager() {
         this.mainClass = Whosthatpixelmon.getInstance();
+        INSTANCE = this;
     }
 
     private int getTimeInterval() throws IOException {

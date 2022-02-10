@@ -42,11 +42,8 @@ public class RewardManager {
             String rewardsString = new StringBuilder("You have received ")
                     .append(itemStackSnapshot.getType().getTranslation().get())
                     .append(" x").append(itemAmounts.get(index)).append("!").toString();
-            Text reward = Text.builder("[Chat Games] ").color(TextColors.YELLOW).style(TextStyles.BOLD)
-                    .append(Text.builder(rewardsString)
-                            .color(TextColors.GREEN).style(TextStyles.RESET).build())
-                    .build();
-            MessageChannel.fixed(winner).send(reward);
+            Text reward = Text.builder(rewardsString).build();
+            BroadcastManager.getInstance().sendPlayerBroadcast(reward, winner);
         } catch (Exception e) {
             new Whosthatpixelmon().getLogger().warn("[WhosThatPixelmon] Unable to create one of the reward ItemStacks");
         }

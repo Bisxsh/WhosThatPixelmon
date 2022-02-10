@@ -1,9 +1,9 @@
 package com.bisxsh.whosthatpixelmon.mapItem;
 
 import com.bisxsh.whosthatpixelmon.Whosthatpixelmon;
+import com.bisxsh.whosthatpixelmon.managers.BroadcastManager;
 import com.github.ericliucn.realmap.images.ImageSaveTask;
 import com.pixelmonmod.pixelmon.enums.EnumSpecies;
-import net.minecraft.util.text.TextComponentTranslation;
 import org.spongepowered.api.Sponge;
 import org.spongepowered.api.asset.Asset;
 import org.spongepowered.api.data.key.Keys;
@@ -21,7 +21,6 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Random;
 
@@ -34,50 +33,65 @@ public class MapMaker {
     private Whosthatpixelmon mainClass;
 
 
-    public MapMaker() throws IOException, URISyntaxException {
+    public MapMaker() throws IOException {
         this.mainClass = Whosthatpixelmon.getInstance();
         this.generateMapsAndDetails();
     }
 
-    private void generateMapsAndDetails() throws IOException, URISyntaxException {
+    public MapMaker(String fileName) throws IOException {
+        this.pokemonName = obtainPokemonName(fileName.substring(0, 3));
+        this.pokemonForm = obtainPokemonForm();
+        this.fileName = fileName;
+        copySpriteToFile(Whosthatpixelmon.getInstance().getSpriteAsset(fileName));
+        generateMaps();
+    }
+
+    private void generateMapsAndDetails() throws IOException {
         getRandomPokemon();
 
         String dexNumber = fileName.substring(0, 3);
-        try {
-            pokemonForm = fileName.substring(4, chosenSprite.getName().length()-4);
-            pokemonForm = pokemonForm.replace("-", " ");
-        } catch (Exception e) {
-            //Pokemon does not have a form
-        }
-
-        EnumSpecies enumPokemon = EnumSpecies.getFromDex(Integer.parseInt(dexNumber));
-        pokemonName = enumPokemon.getLocalizedName();
-        //Fixes compound pokemon names, e.g. MrMime -> Mr Mime, without interrupting on hyphenated names
-        //e.g. Porygon-Z
-        final int pokemonNameLength = pokemonName.length();
-        for (int i = 1; i < pokemonNameLength; i++) {
-            char character = pokemonName.charAt(i);
-            if (Character.isUpperCase(character) && Character.valueOf(pokemonName.charAt(i-1)) != '-') {
-                StringBuilder compoundNameBuilder = new StringBuilder(pokemonName.substring(0,i))
-                        .append(" ").append(pokemonName.substring(i));
-                pokemonName = compoundNameBuilder.toString();
-                break;
-            }
-        }
-        //
+        obtainPokemonForm();
+        obtainPokemonName(dexNumber);
 
         generateMaps();
     }
 
-    private void getRandomPokemon() throws IOException {
+    private String obtainPokemonForm() {
+        try {
+            pokemonForm = fileName.substring(4, chosenSprite.getName().length()-4);
+            pokemonForm = pokemonForm.replace("-", " ");
+            return pokemonForm;
+        } catch (Exception e) {
+            //Pokemon does not have a form
+        }
+        return null;
+    }
 
+    private String obtainPokemonName(String dexNumber) {
+        //Get pokemon name from dex number
+        EnumSpecies enumPokemon = EnumSpecies.getFromDex(Integer.parseInt(dexNumber));
+        pokemonName = enumPokemon.getLocalizedName();
+
+
+        //Remove accents from "Flabebe"
+        if (dexNumber.equals("669")) {
+            pokemonName = "Flabebe";
+        }
+
+        return pokemonName;
+    }
+
+    private void getRandomPokemon() throws IOException {
         Asset fileNamesAsset = mainClass.getFileNamesAsset();
         List<String> fileNames = fileNamesAsset.readLines();
         Random rand = new Random();
         String randomFile = fileNames.get(rand.nextInt(fileNames.size()));
         Asset pokemonSpriteAsset = mainClass.getSpriteAsset(randomFile);
         fileName = pokemonSpriteAsset.getFileName();
+        copySpriteToFile(pokemonSpriteAsset);
+    }
 
+    public void copySpriteToFile(Asset pokemonSpriteAsset) throws IOException {
         File spriteDirectory = new File("config/sprites");
         if (!spriteDirectory.exists()) {
             spriteDirectory.mkdirs();
@@ -87,7 +101,6 @@ public class MapMaker {
         String spritePath = new StringBuilder(spriteDirectory.getPath().toString())
                 .append("/").append(fileName).toString();
         chosenSprite = new File(spritePath);
-
     }
 
 
@@ -96,7 +109,6 @@ public class MapMaker {
         Color gray = new Color(160, 160, 160);
         int grayRGB = gray.getRGB();
         //
-
 
         //Change pixels on hidden and revealed pixelmon sprites
         BufferedImage hiddenImage = ImageIO.read(chosenSprite);
@@ -177,5 +189,19 @@ public class MapMaker {
 
     public String getPokemonName() {
         return pokemonName;
+    }
+
+    public String getDisplayedAnswer() {
+        String answer;
+        if (pokemonForm != null) {
+            answer = new StringBuilder(pokemonName)
+                    .append(" (")
+                    .append(pokemonForm)
+                    .append(")")
+                    .toString();
+        } else {
+            answer = pokemonName;
+        }
+        return answer;
     }
 }
