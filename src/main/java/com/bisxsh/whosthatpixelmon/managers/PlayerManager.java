@@ -12,6 +12,7 @@ import org.spongepowered.api.item.inventory.ItemStack;
 import org.spongepowered.api.scheduler.Task;
 import org.spongepowered.api.text.Text;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Optional;
@@ -33,7 +34,10 @@ public class PlayerManager {
     }
 
     public void sendPlayersHiddenMap() {
-        Collection<Player> onlinePlayers = Sponge.getServer().getOnlinePlayers();
+        sendPlayersHiddenMap(Sponge.getServer().getOnlinePlayers());
+    }
+
+    public void sendPlayersHiddenMap(Collection<Player> onlinePlayers) {
 
         for (Player player : onlinePlayers) {
             Optional<ItemStack> optItem = player.getItemInHand(HandTypes.MAIN_HAND);
