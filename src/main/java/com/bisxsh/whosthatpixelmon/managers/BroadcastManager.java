@@ -33,7 +33,7 @@ public class BroadcastManager {
     }
 
     public static void sendPlayerBroadcast (Text message, Player player) {
-        player.getMessageChannel().send(getPrefix().concat(getFormattedMessage(message)));
+        player.sendMessage(getPrefix().concat(getFormattedMessage(message)));
     }
 
     private static Text getFormattedMessage(Text message) {
