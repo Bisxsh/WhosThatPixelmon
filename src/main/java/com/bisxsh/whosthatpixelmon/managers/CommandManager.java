@@ -11,6 +11,8 @@ import org.spongepowered.api.command.args.GenericArguments;
 import org.spongepowered.api.command.spec.CommandSpec;
 import org.spongepowered.api.entity.living.player.Player;
 import org.spongepowered.api.text.Text;
+import org.spongepowered.api.text.format.TextColors;
+import org.spongepowered.api.text.format.TextStyles;
 
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -98,7 +100,7 @@ public class CommandManager {
 
                         BroadcastManager.sendPlayerBroadcast(Text.of("File names:"), p);
                         for (String file : filesFound) {
-                            p.sendMessage(BroadcastManager.getText("&a&l"+file));
+                            p.sendMessage(Text.of(TextColors.GREEN, TextStyles.BOLD, file));
                         }
                     } catch (IOException e) {
                         WhosThatPixelmon.getInstance().getLogger().info(
