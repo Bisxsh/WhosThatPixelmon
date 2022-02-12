@@ -46,6 +46,7 @@ public class ChatGameManager {
         //Starting broadcast
         Text txt = Text.builder(ConfigManager.getInstance().getStartingMessage()).build();
         BroadcastManager.sendBroadcast(txt);
+        WhosThatPixelmon.getInstance().getLogger().info("[Whos That Pixelmon] answer: "+getDisplayedAnswer());
         //
 
         //Give participating players the hidden map
