@@ -31,7 +31,6 @@ public class MapMaker {
     private File chosenSprite;
     private WhosThatPixelmon mainClass;
 
-
     public MapMaker() throws IOException {
         this.mainClass = WhosThatPixelmon.getInstance();
         this.generateMapsAndDetails();
