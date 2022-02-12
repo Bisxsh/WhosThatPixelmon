@@ -82,7 +82,7 @@ public class WhosThatPixelmon {
         logger.info("WhosThatPixelmon has started");
         timeManager = new TimeManager();
         new CommandManager().setupCommands();
-        //setTimeInterval();
+        setTimeInterval();
     }
 
     @Listener
